@@ -74,10 +74,6 @@ class CalendarEssentialsState extends State<CalendarEssentialsStatefulWidget> {
         firstDateOfThePreviousPage = DateTime(_firstDayDisplayed.year,
             _firstDayDisplayed.month - 1, _firstDayDisplayed.day);
         break;
-      default:
-        firstDateOfThePreviousPage = DateTime(_firstDayDisplayed.year,
-            _firstDayDisplayed.month, _firstDayDisplayed.day - 7);
-        break;
     }
 
     computeEnabledPages(firstDateOfThePreviousPage);
@@ -281,7 +277,7 @@ class CalendarEssentialsState extends State<CalendarEssentialsStatefulWidget> {
                 color: Colors.blue,
                 border: Border.all(color: Colors.grey, width: 0.5),
               ),
-              selectedDecoration: BoxDecoration(
+              selectedDecoration: const BoxDecoration(
                 color: Colors.red,
                 shape: BoxShape.rectangle,
               ),
@@ -303,6 +299,8 @@ class CalendarEssentialsState extends State<CalendarEssentialsStatefulWidget> {
                     });
                   },
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Expanded(
                           child: event.buildEvent(
@@ -402,20 +400,24 @@ class CalendarEssentialsState extends State<CalendarEssentialsStatefulWidget> {
           )
         ]);
       case CalendarFormat.month:
-      default:
         return Column(children: [
           Row(
             children: weekdays,
           ),
           Wrap(
             alignment: WrapAlignment.center,
-            children: buildByWeeks(4),
+            children: buildByWeeks(6), // Max weeks any month can need; will be recalculated dynamically
           )
         ]);
     }
   }
 
-  double computeWidthCase() => (MediaQuery.of(context).size.width - 16.0) / 7;
+  double computeWidthCase() {
+    // Account for padding: each cell has 8px padding on all sides (16px horizontal)
+    // Total horizontal padding for 7 cells = 7 * 16 = 112px
+    // Available width = screen width - 16 (margins) - 112 (padding) = screen width - 128
+    return (MediaQuery.of(context).size.width - 128.0) / 7;
+  }
 
   @override
   Widget build(BuildContext context) {
