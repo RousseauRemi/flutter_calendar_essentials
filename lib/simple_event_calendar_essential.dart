@@ -16,17 +16,55 @@ class SimpleEventCalendarEssential extends EventCalendarEssential {
 
   @override
   Widget buildEvent(bool isSelected, bool isToday ) {
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: isSelected ? _calendarStyle.selectedDecoration.color : isToday ? _calendarStyle.todayDecoration.color : Colors.transparent,
-        border: isSelected ? _calendarStyle.selectedDecoration.border: Border.all(color: Colors.transparent),
+    BoxDecoration decoration;
+    TextStyle textStyle;
 
-      ),
-      child: Center(
-        child: Text(
-          date.day.toString(),
-          style: const TextStyle(fontWeight: FontWeight.bold),
+    if (isSelected) {
+      decoration = _calendarStyle.selectedDecoration;
+      // Use custom style or default
+      textStyle = _calendarStyle.selectedDayTextStyle ??
+          TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+            color: (_calendarStyle.selectedDecoration.color == Colors.transparent ||
+                     _calendarStyle.selectedDecoration.color == null)
+                     ? Colors.black
+                     : Colors.white,
+          );
+    } else if (isToday) {
+      decoration = _calendarStyle.todayDecoration;
+      // Use custom style or default
+      textStyle = _calendarStyle.todayTextStyle ??
+          const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+            color: Colors.white,
+          );
+    } else {
+      decoration = BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.transparent,
+      );
+      // Use custom style or default
+      textStyle = _calendarStyle.dayTextStyle ??
+          const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+            color: Colors.black,
+          );
+    }
+
+    return Center(
+      child: AspectRatio(
+        aspectRatio: 1.0,
+        child: Container(
+          decoration: decoration,
+          child: Center(
+            child: Text(
+              date.day.toString(),
+              style: textStyle,
+            ),
+          ),
         ),
       ),
     );

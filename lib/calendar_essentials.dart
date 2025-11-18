@@ -18,6 +18,9 @@ class CalendarEssentials extends StatelessWidget {
   final ValueChanged<DateTime>? onPageChanged;
   final AvailableGestures availableGestures;
   final DateTime? selectedDay;
+  final bool showComboboxForMonthYear;
+  final ValueChanged<int>? onYearChanged;
+  final ValueChanged<int>? onMonthChanged;
 
   const CalendarEssentials({super.key,
     required this.events,
@@ -32,6 +35,9 @@ class CalendarEssentials extends StatelessWidget {
     this.onPageChanged,
     this.selectedDay,
     this.availableGestures = AvailableGestures.all,
+    this.showComboboxForMonthYear = false,
+    this.onYearChanged,
+    this.onMonthChanged,
   });
 
   @override
@@ -48,7 +54,10 @@ class CalendarEssentials extends StatelessWidget {
       onChanged: onChanged,
       availableGestures: availableGestures,
       selectedDay: selectedDay,
-      heightCell: heightCell
+      heightCell: heightCell,
+      showComboboxForMonthYear: showComboboxForMonthYear,
+      onYearChanged: onYearChanged,
+      onMonthChanged: onMonthChanged,
     );
   }
 }
@@ -67,6 +76,9 @@ class CalendarEssentialsStatefulWidget extends StatefulWidget {
   final ValueChanged<DateTime>? onPageChanged;
   final AvailableGestures availableGestures;
   final DateTime? selectedDay;
+  final bool showComboboxForMonthYear;
+  final ValueChanged<int>? onYearChanged;
+  final ValueChanged<int>? onMonthChanged;
 
   const CalendarEssentialsStatefulWidget({super.key,
     required this.events,
@@ -80,7 +92,10 @@ class CalendarEssentialsStatefulWidget extends StatefulWidget {
     this.onFormatChanged,
     this.onPageChanged,
     required this.availableGestures,
-    this.selectedDay
+    this.selectedDay,
+    required this.showComboboxForMonthYear,
+    this.onYearChanged,
+    this.onMonthChanged,
   });
 
   @override
