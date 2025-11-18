@@ -47,12 +47,17 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: CalendarEssentials(
-              events: const [],
-              showComboboxForMonthYear: true,
-              onMonthChanged: (month) {
-                selectedMonth = month;
-              },
+            body: SizedBox(
+              width: 800,
+              height: 600,
+              child: CalendarEssentials(
+                events: const [],
+                showComboboxForMonthYear: true,
+                selectedDay: DateTime(2024, 1, 15),
+                onMonthChanged: (month) {
+                  selectedMonth = month;
+                },
+              ),
             ),
           ),
         ),
@@ -66,33 +71,36 @@ void main() {
       await tester.tap(monthDropdowns.first);
       await tester.pumpAndSettle();
 
-      // Find and tap a different month option (if available)
-      final monthOptions = find.text('February');
-      if (monthOptions.evaluate().isNotEmpty) {
-        await tester.tap(monthOptions.last);
-        await tester.pumpAndSettle();
+      // Find and tap February option
+      final februaryOption = find.text('February').last;
+      await tester.tap(februaryOption, warnIfMissed: false);
+      await tester.pumpAndSettle();
 
-        // Verify the callback was triggered
-        expect(selectedMonth, 2);
-      }
+      // Verify the callback was triggered
+      expect(selectedMonth, 2);
     });
 
     testWidgets('Should trigger onYearChanged when year is selected',
         (WidgetTester tester) async {
       int? selectedYear;
-      final currentYear = DateTime.now().year;
+      const testYear = 2024;
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: CalendarEssentials(
-              events: const [],
-              showComboboxForMonthYear: true,
-              firstDay: DateTime(currentYear - 5, 1, 1),
-              lastDay: DateTime(currentYear + 5, 12, 31),
-              onYearChanged: (year) {
-                selectedYear = year;
-              },
+            body: SizedBox(
+              width: 800,
+              height: 600,
+              child: CalendarEssentials(
+                events: const [],
+                showComboboxForMonthYear: true,
+                selectedDay: DateTime(testYear, 1, 15),
+                firstDay: DateTime(testYear - 5, 1, 1),
+                lastDay: DateTime(testYear + 5, 12, 31),
+                onYearChanged: (year) {
+                  selectedYear = year;
+                },
+              ),
             ),
           ),
         ),
@@ -107,28 +115,34 @@ void main() {
       await tester.pumpAndSettle();
 
       // Find and tap a different year option
-      final yearOption = find.text((currentYear - 1).toString());
-      if (yearOption.evaluate().isNotEmpty) {
-        await tester.tap(yearOption.last);
-        await tester.pumpAndSettle();
+      final yearOption = find.text((testYear - 1).toString()).last;
+      await tester.tap(yearOption, warnIfMissed: false);
+      await tester.pumpAndSettle();
 
-        // Verify the callback was triggered
-        expect(selectedYear, currentYear - 1);
-      }
+      // Verify the callback was triggered
+      expect(selectedYear, testYear - 1);
     });
 
     testWidgets('Should respect min/max date constraints for months',
         (WidgetTester tester) async {
-      final currentYear = DateTime.now().year;
+      const testYear = 2024;
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: CalendarEssentials(
-              events: const [],
-              showComboboxForMonthYear: true,
-              firstDay: DateTime(currentYear, 3, 1), // March
-              lastDay: DateTime(currentYear, 8, 31), // August
+            body: SingleChildScrollView(
+              child: SizedBox(
+                width: 800,
+                height: 800,
+                child: CalendarEssentials(
+                  events: const [],
+                  showComboboxForMonthYear: true,
+                  selectedDay:
+                      DateTime(testYear, 5, 15), // Start in May (within range)
+                  firstDay: DateTime(testYear, 3, 1), // March
+                  lastDay: DateTime(testYear, 8, 31), // August
+                ),
+              ),
             ),
           ),
         ),
@@ -150,6 +164,10 @@ void main() {
 
       // Should not find September (after lastDay)
       expect(find.text('September'), findsNothing);
+
+      // Close dropdown
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
     });
 
     testWidgets('Should respect min/max date constraints for years',
@@ -160,11 +178,16 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: CalendarEssentials(
-              events: const [],
-              showComboboxForMonthYear: true,
-              firstDay: DateTime(startYear, 1, 1),
-              lastDay: DateTime(endYear, 12, 31),
+            body: SizedBox(
+              width: 800,
+              height: 600,
+              child: CalendarEssentials(
+                events: const [],
+                showComboboxForMonthYear: true,
+                selectedDay: DateTime(2022, 6, 15), // Start in middle of range
+                firstDay: DateTime(startYear, 1, 1),
+                lastDay: DateTime(endYear, 12, 31),
+              ),
             ),
           ),
         ),
