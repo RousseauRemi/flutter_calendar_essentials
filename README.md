@@ -60,62 +60,99 @@ Add the following dependency to your pubspec.yaml file:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_calendar_essentials: ^1.0.10
+  flutter_calendar_essentials: ^1.0.14
 ```
 ## Usage
-Creating an Event Class
-To use the EventCalendar, you need to create a class that extends EventCalendarEssential and overrides the required methods.
 
-```
+### Creating a Custom Event Class
+
+To create custom events, extend `EventCalendarEssential` and override the required methods:
+
+```dart
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_essentials/event_calendar.dart';
+import 'package:flutter_calendar_essentials/calendar_style.dart';
+
+// Simple event entity for storing event data
+class EventData {
+  final Color color;
+  final String title;
+
+  EventData({required this.color, required this.title});
+}
+
 class MyCustomEventCalendar extends EventCalendarEssential {
-  bool defaultEvent = true;
-  var events = <CalendarEventEntity>[];
-  ArrEventCalendar(DateTime date, this.defaultEvent, this.events) : super(date, false);
-  
+  final CalendarStyle style;
+  final List<EventData> eventData;
+
+  MyCustomEventCalendar({
+    required DateTime date,
+    required this.style,
+    this.eventData = const [],
+  }) : super(date);
+
   @override
   bool isEventSelected(DateTime selectedDay) {
     return date.year == selectedDay.year &&
         date.month == selectedDay.month &&
         date.day == selectedDay.day;
   }
-  
+
   @override
   Widget buildEvent(bool isSelected, bool isToday) {
+    Color backgroundColor;
+    TextStyle textStyle;
+
+    if (isSelected) {
+      backgroundColor = style.selectedDecoration.color ?? Colors.red;
+      textStyle = style.selectedDayTextStyle ??
+          const TextStyle(color: Colors.white, fontWeight: FontWeight.bold);
+    } else if (isToday) {
+      backgroundColor = style.todayDecoration.color ?? Colors.blue;
+      textStyle = style.todayTextStyle ??
+          const TextStyle(color: Colors.white, fontWeight: FontWeight.bold);
+    } else {
+      backgroundColor = Colors.transparent;
+      textStyle = style.dayTextStyle ??
+          const TextStyle(color: Colors.black, fontWeight: FontWeight.normal);
+    }
+
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: isSelected ? Colors.blue : isToday ? Colors.blueGrey : Colors.transparent,
-        border: isSelected ? Border.all(color: Colors.grey, width: 0.5): Border.all(color: Colors.transparent),
+        color: backgroundColor,
+        border: isSelected
+            ? Border.all(color: Colors.grey, width: 0.5)
+            : null,
       ),
       child: Center(
         child: Text(
           date.day.toString(),
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: textStyle,
         ),
       ),
     );
   }
 
-  Widget _buildDot(Color color) {
-    return Padding(padding: const EdgeInsets.fromLTRB(1, 0, 1, 0), child: Container(
-      width: 8,
-      height: 8,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
-    ));
-  }
-
   @override
   Widget buildMarkerEvent() {
-    List<Widget> dotWidgets = [];
-
-    for (var event in events) {
-      dotWidgets.add(_buildDot(event.api.color));
+    if (eventData.isEmpty) {
+      return const SizedBox.shrink();
     }
+
+    List<Widget> dotWidgets = eventData.map((event) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 1.0),
+        child: Container(
+          width: 6,
+          height: 6,
+          decoration: BoxDecoration(
+            color: event.color,
+            shape: BoxShape.circle,
+          ),
+        ),
+      );
+    }).toList();
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -123,23 +160,26 @@ class MyCustomEventCalendar extends EventCalendarEssential {
     );
   }
 }
-
-
 ```
-## Using the Calendar Widget
-Create a list of MyEvent objects and pass them to the CalendarEssentials widget.
+### Using the Calendar Widget
 
-```
+Here's a complete example showing how to use the calendar with custom events:
+
+```dart
 import 'package:flutter/material.dart';
-import 'package:event_calendar/event_calendar.dart';
+import 'package:flutter_calendar_essentials/calendar_essentials.dart';
+import 'package:flutter_calendar_essentials/calendar_style.dart';
+import 'package:flutter_calendar_essentials/enums.dart';
 
 class CalendarPage extends StatefulWidget {
+  const CalendarPage({super.key});
+
   @override
-  _CalendarPageState createState() => _CalendarPageState();
+  State<CalendarPage> createState() => _CalendarPageState();
 }
 
 class _CalendarPageState extends State<CalendarPage> {
-  late List<MyEvent> events;
+  late List<MyCustomEventCalendar> events;
   late DateTime selectedDay;
   late DateTime firstDayLimit;
   late DateTime lastDayLimit;
@@ -150,15 +190,28 @@ class _CalendarPageState extends State<CalendarPage> {
     super.initState();
     // Initialize your events, selected day, limits, and format
     selectedDay = DateTime.now();
-    firstDayLimit = DateTime.now().subtract(Duration(days: 365));
-    lastDayLimit = DateTime.now().add(Duration(days: 365));
-    calendarFormat = CalendarFormat.twoWeeks;
+    firstDayLimit = DateTime.now().subtract(const Duration(days: 365));
+    lastDayLimit = DateTime.now().add(const Duration(days: 365));
+    calendarFormat = CalendarFormat.month;
+
+    // Create some sample events
+    final style = CalendarStyle();
     events = [
-      MyEvent(
+      MyCustomEventCalendar(
         date: DateTime.now(),
-        events: [EventDetail(color: Colors.red)],
+        style: style,
+        eventData: [
+          EventData(color: Colors.red, title: 'Meeting'),
+          EventData(color: Colors.blue, title: 'Appointment'),
+        ],
       ),
-      // Add more events
+      MyCustomEventCalendar(
+        date: DateTime.now().add(const Duration(days: 2)),
+        style: style,
+        eventData: [
+          EventData(color: Colors.green, title: 'Birthday'),
+        ],
+      ),
     ];
   }
 
@@ -170,7 +223,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
   void refreshEvents() {
     setState(() {
-      // Update your events list
+      // Update your events list here if needed
     });
   }
 
@@ -178,7 +231,7 @@ class _CalendarPageState extends State<CalendarPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Event Calendar'),
+        title: const Text('Event Calendar'),
       ),
       body: CalendarEssentials(
         events: events,
@@ -189,13 +242,13 @@ class _CalendarPageState extends State<CalendarPage> {
           ),
           selectedDecoration: BoxDecoration(
             color: Theme.of(context).colorScheme.secondary,
-            shape: BoxShape.rectangle,
+            shape: BoxShape.circle,
           ),
         ),
         onDaySelected: (selectedDay) {
           onDaySelected(selectedDay);
         },
-        defaultCalendarFormat: CalendarFormat.twoWeeks,
+        defaultCalendarFormat: CalendarFormat.month,
         onFormatChanged: (format) {
           setState(() {
             calendarFormat = format;
@@ -203,25 +256,29 @@ class _CalendarPageState extends State<CalendarPage> {
           refreshEvents();
         },
         onChanged: (firstDay, lastDay) {
-          setState(() {
-            firstDayLimit = firstDay;
-            lastDayLimit = lastDay;
-          });
+          // Called when the displayed month/week changes
+          print('Showing: $firstDay to $lastDay');
         },
-        heightCell: 30,
+        heightCell: 40,
         selectedDay: selectedDay,
         firstDay: firstDayLimit,
         lastDay: lastDayLimit,
-        availableGestures: AvailableGestures.horizontal,
+        availableGestures: AvailableGestures.all,
+        showComboboxForMonthYear: true,
         onPageChanged: (focusedDay) {
           onDaySelected(focusedDay);
           refreshEvents();
+        },
+        onYearChanged: (year) {
+          print('Year changed to: $year');
+        },
+        onMonthChanged: (month) {
+          print('Month changed to: $month');
         },
       ),
     );
   }
 }
-
 ```
 ## Parameters
 

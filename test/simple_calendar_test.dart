@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_calendar_essentials/calendar_essentials.dart';
-import 'package:flutter_calendar_essentials/calendar_style.dart';
-import 'package:flutter_calendar_essentials/simple_event_calendar_essential.dart';
 
 void main() {
   group('CalendarEssentials Combobox Tests', () {
-    testWidgets('Should show label when showComboboxForMonthYear is false', (WidgetTester tester) async {
+    testWidgets('Should show label when showComboboxForMonthYear is false',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CalendarEssentials(
               events: [],
@@ -24,9 +23,10 @@ void main() {
       expect(find.byType(DropdownButton<int>), findsNothing);
     });
 
-    testWidgets('Should show comboboxes when showComboboxForMonthYear is true', (WidgetTester tester) async {
+    testWidgets('Should show comboboxes when showComboboxForMonthYear is true',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CalendarEssentials(
               events: [],
@@ -40,14 +40,15 @@ void main() {
       expect(find.byType(DropdownButton<int>), findsNWidgets(2));
     });
 
-    testWidgets('Should trigger onMonthChanged when month is selected', (WidgetTester tester) async {
+    testWidgets('Should trigger onMonthChanged when month is selected',
+        (WidgetTester tester) async {
       int? selectedMonth;
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: CalendarEssentials(
-              events: [],
+              events: const [],
               showComboboxForMonthYear: true,
               onMonthChanged: (month) {
                 selectedMonth = month;
@@ -76,7 +77,8 @@ void main() {
       }
     });
 
-    testWidgets('Should trigger onYearChanged when year is selected', (WidgetTester tester) async {
+    testWidgets('Should trigger onYearChanged when year is selected',
+        (WidgetTester tester) async {
       int? selectedYear;
       final currentYear = DateTime.now().year;
 
@@ -84,7 +86,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: CalendarEssentials(
-              events: [],
+              events: const [],
               showComboboxForMonthYear: true,
               firstDay: DateTime(currentYear - 5, 1, 1),
               lastDay: DateTime(currentYear + 5, 12, 31),
@@ -115,17 +117,18 @@ void main() {
       }
     });
 
-    testWidgets('Should respect min/max date constraints for months', (WidgetTester tester) async {
+    testWidgets('Should respect min/max date constraints for months',
+        (WidgetTester tester) async {
       final currentYear = DateTime.now().year;
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: CalendarEssentials(
-              events: [],
+              events: const [],
               showComboboxForMonthYear: true,
-              firstDay: DateTime(currentYear, 3, 1),  // March
-              lastDay: DateTime(currentYear, 8, 31),  // August
+              firstDay: DateTime(currentYear, 3, 1), // March
+              lastDay: DateTime(currentYear, 8, 31), // August
             ),
           ),
         ),
@@ -149,15 +152,16 @@ void main() {
       expect(find.text('September'), findsNothing);
     });
 
-    testWidgets('Should respect min/max date constraints for years', (WidgetTester tester) async {
-      final startYear = 2020;
-      final endYear = 2025;
+    testWidgets('Should respect min/max date constraints for years',
+        (WidgetTester tester) async {
+      const startYear = 2020;
+      const endYear = 2025;
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: CalendarEssentials(
-              events: [],
+              events: const [],
               showComboboxForMonthYear: true,
               firstDay: DateTime(startYear, 1, 1),
               lastDay: DateTime(endYear, 12, 31),
