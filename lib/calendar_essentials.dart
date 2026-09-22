@@ -712,15 +712,15 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
 
   /// Builds the weekday header row
   Widget _buildWeekdayHeader() {
-    final weekdays = <Widget>[];
     final firstDayOfWeekIndex = _firstDayOfWeek.index;
     final weekdayNames = _weekdayNamesForWidth(_computeDayCellWidth());
 
-    for (int i = firstDayOfWeekIndex; i < firstDayOfWeekIndex + 7; i++) {
-      final weekdayIndex = i % Weekday.values.length;
-      final weekday = Weekday.values[weekdayIndex];
-      weekdays.add(
-        Expanded(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: List.generate(7, (i) {
+        final weekday =
+            Weekday.values[(firstDayOfWeekIndex + i) % Weekday.values.length];
+        return Expanded(
           child: Padding(
             padding: const EdgeInsets.all(3.0),
             child: Center(
@@ -732,13 +732,8 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
               ),
             ),
           ),
-        ),
-      );
-    }
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: weekdays,
+        );
+      }),
     );
   }
 
