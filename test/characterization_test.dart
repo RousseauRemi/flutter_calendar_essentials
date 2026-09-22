@@ -19,6 +19,24 @@ class _LabelEvent extends EventCalendarEssential {
   bool isEventSelected(DateTime selectedDay) => false;
 }
 
+final _built = <String>[];
+
+class _RecordingEvent extends EventCalendarEssential {
+  _RecordingEvent(super.date);
+
+  @override
+  Widget buildEvent(bool isSelected, bool isToday) {
+    _built.add('${date.month}/${date.day}');
+    return Text('R${date.day}');
+  }
+
+  @override
+  Widget buildMarkerEvent() => const SizedBox.shrink();
+
+  @override
+  bool isEventSelected(DateTime selectedDay) => false;
+}
+
 Widget _app(Widget calendar) => MaterialApp(home: Scaffold(body: calendar));
 
 List<String> _texts(WidgetTester tester) => tester
@@ -46,21 +64,24 @@ Future<void> _pumpAtWidth(WidgetTester tester, double width) async {
   )));
 }
 
-Finder _containerWith(BoxDecoration decoration) => find.byWidgetPredicate(
-    (w) => w is Container && w.decoration == decoration);
+Finder _containerWith(BoxDecoration decoration) =>
+    find.byWidgetPredicate((w) => w is Container && w.decoration == decoration);
 
 void main() {
   group('Characterization: day grid', () {
-    testWidgets('month view of Feb 2024 lists Jan 29 .. Mar 3',
-        (tester) async {
+    testWidgets('month view of Feb 2024 lists Jan 29 .. Mar 3', (tester) async {
       await tester.pumpWidget(_app(CalendarEssentials(
         events: const [],
         selectedDay: DateTime(2024, 2, 14),
       )));
       expect(_dayNumbers(tester), [
-        '29', '30', '31',
+        '29',
+        '30',
+        '31',
         for (var d = 1; d <= 29; d++) '$d',
-        '1', '2', '3',
+        '1',
+        '2',
+        '3',
       ]);
     });
 
@@ -96,10 +117,10 @@ void main() {
       )));
       final cell = _containerWith(red);
       expect(cell, findsOneWidget);
-      expect(find.descendant(of: cell, matching: find.text('15')),
-          findsOneWidget);
-      final text = tester.widget<Text>(
-          find.descendant(of: cell, matching: find.byType(Text)));
+      expect(
+          find.descendant(of: cell, matching: find.text('15')), findsOneWidget);
+      final text = tester
+          .widget<Text>(find.descendant(of: cell, matching: find.byType(Text)));
       expect(
           text.style,
           const TextStyle(
@@ -118,8 +139,8 @@ void main() {
       expect(cell, findsOneWidget);
       expect(find.descendant(of: cell, matching: find.text('${now.day}')),
           findsOneWidget);
-      final text = tester.widget<Text>(
-          find.descendant(of: cell, matching: find.byType(Text)));
+      final text = tester
+          .widget<Text>(find.descendant(of: cell, matching: find.byType(Text)));
       expect(
           text.style,
           const TextStyle(
@@ -140,7 +161,12 @@ void main() {
 
   group('Characterization: weekday labels by screen width', () {
     const long = [
-      'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
       'Sunday'
     ];
     const medium = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -199,14 +225,16 @@ void main() {
         showComboboxForMonthYear: true,
         selectedDay: DateTime(2024, 1, 15),
       )));
-      final dropdowns =
-          tester.widgetList<DropdownButton<int>>(find.byType(DropdownButton<int>));
+      final dropdowns = tester
+          .widgetList<DropdownButton<int>>(find.byType(DropdownButton<int>));
       expect(dropdowns.length, 2);
       for (final d in dropdowns) {
         expect(
             d.style,
             const TextStyle(
-                fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black));
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black));
       }
       expect(dropdowns.first.value, 1);
       expect(dropdowns.last.value, 2024);
@@ -225,5 +253,71 @@ void main() {
         expect(d.style, custom);
       }
     });
+  });
+
+  group('Characterization: grid structure', () {
+    for (final c in [
+      (
+        CalendarFormat.week,
+        WrapAlignment.spaceAround,
+        DateTime(2024, 2, 12),
+        7
+      ),
+      (
+        CalendarFormat.twoWeeks,
+        WrapAlignment.center,
+        DateTime(2024, 2, 12),
+        14
+      ),
+      (CalendarFormat.month, WrapAlignment.center, DateTime(2024, 1, 29), 35),
+    ]) {
+      testWidgets('${c.$1.name}: Wrap, cells and build order', (tester) async {
+        tester.view.physicalSize = const Size(800, 800);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.reset);
+        _built.clear();
+        await tester.pumpWidget(_app(CalendarEssentials(
+          events: [
+            for (var d = 0; d < 42; d++)
+              _RecordingEvent(DateTime(2024, 1, 29 + d))
+          ],
+          selectedDay: DateTime(2024, 2, 14),
+          defaultCalendarFormat: c.$1,
+        )));
+
+        expect(find.byType(Wrap), findsOneWidget);
+        final wrap = tester.widget<Wrap>(find.byType(Wrap));
+        expect(wrap.alignment, c.$2);
+        expect(wrap.children, hasLength(c.$4));
+        for (final child in wrap.children) {
+          final outer = child as SizedBox;
+          expect(outer.width, 106.0);
+          expect(outer.height, isNull);
+          final pad = outer.child as Padding;
+          expect(pad.padding, const EdgeInsets.all(3.0));
+          final inner = pad.child as SizedBox;
+          expect(inner.width, 106.0);
+          expect(inner.height, 38.0);
+        }
+
+        expect(tester.getSize(find.byType(Wrap)), Size(742.0, 44.0 * c.$4 / 7));
+        final first = find.byWidget(wrap.children.first);
+        expect(tester.getSize(first), const Size(106.0, 44.0));
+        expect(tester.getTopLeft(first), const Offset(29.0, 88.0));
+        final innerFirst = ((wrap.children.first as SizedBox).child as Padding)
+            .child as SizedBox;
+        expect(
+            tester.getSize(find.byWidget(innerFirst)), const Size(100.0, 38.0));
+        final last = find.byWidget(wrap.children.last);
+        expect(tester.getTopLeft(last),
+            Offset(665.0, 88.0 + 44.0 * (c.$4 / 7 - 1)));
+
+        expect(_built, [
+          for (var i = 0; i < c.$4; i++)
+            '${DateTime(c.$3.year, c.$3.month, c.$3.day + i).month}/'
+                '${DateTime(c.$3.year, c.$3.month, c.$3.day + i).day}'
+        ]);
+      });
+    }
   });
 }
