@@ -67,6 +67,70 @@ Future<void> _pumpAtWidth(WidgetTester tester, double width) async {
 Finder _containerWith(BoxDecoration decoration) =>
     find.byWidgetPredicate((w) => w is Container && w.decoration == decoration);
 
+String _d(DateTime d) => '${d.year}-${d.month}-${d.day} ${d.hour}:${d.minute}';
+
+Widget _navCalendar(
+  List<String> log, {
+  required DateTime selectedDay,
+  CalendarFormat? format,
+  DateTime? firstDay,
+  DateTime? lastDay,
+  bool showComboboxForMonthYear = false,
+}) =>
+    _app(CalendarEssentials(
+      events: const [],
+      selectedDay: selectedDay,
+      defaultCalendarFormat: format,
+      firstDay: firstDay,
+      lastDay: lastDay,
+      showComboboxForMonthYear: showComboboxForMonthYear,
+      onChanged: (a, b) => log.add('changed ${_d(a)} .. ${_d(b)}'),
+      onPageChanged: (a) => log.add('page ${_d(a)}'),
+      onYearChanged: (y) => log.add('year $y'),
+      onMonthChanged: (m) => log.add('month $m'),
+      onFormatChanged: (f) => log.add('format $f'),
+    ));
+
+bool _arrowEnabled(WidgetTester tester, IconData icon) =>
+    tester
+        .widget<IconButton>(find.ancestor(
+            of: find.byIcon(icon), matching: find.byType(IconButton)))
+        .onPressed !=
+    null;
+
+/// Arrow state and displayed grid: "prev/next first..last(count)".
+String _page(WidgetTester tester) {
+  final days = _dayNumbers(tester);
+  return '${_arrowEnabled(tester, Icons.arrow_back)}/'
+      '${_arrowEnabled(tester, Icons.arrow_forward)} '
+      '${days.first}..${days.last}(${days.length})';
+}
+
+Future<void> _setNavView(WidgetTester tester) async {
+  tester.view.physicalSize = const Size(800, 800);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
+}
+
+/// Taps [icon], returns the callbacks fired followed by the resulting page.
+Future<List<String>> _tapArrow(
+    WidgetTester tester, List<String> log, IconData icon) async {
+  log.clear();
+  await tester.tap(find.byIcon(icon));
+  await tester.pumpAndSettle();
+  return [...log, _page(tester)];
+}
+
+Future<List<String>> _pickDropdown(
+    WidgetTester tester, List<String> log, int index, String text) async {
+  log.clear();
+  await tester.tap(find.byType(DropdownButton<int>).at(index));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(text).last, warnIfMissed: false);
+  await tester.pumpAndSettle();
+  return [...log, _page(tester)];
+}
+
 void main() {
   group('Characterization: day grid', () {
     testWidgets('month view of Feb 2024 lists Jan 29 .. Mar 3', (tester) async {
@@ -316,6 +380,213 @@ void main() {
           for (var i = 0; i < c.$4; i++)
             '${DateTime(c.$3.year, c.$3.month, c.$3.day + i).month}/'
                 '${DateTime(c.$3.year, c.$3.month, c.$3.day + i).day}'
+        ]);
+      });
+    }
+  });
+
+  group('Characterization: navigation', () {
+    const back = Icons.arrow_back, next = Icons.arrow_forward;
+
+    testWidgets('A month, no bounds', (tester) async {
+      await _setNavView(tester);
+      final log = <String>[];
+      await tester
+          .pumpWidget(_navCalendar(log, selectedDay: DateTime(2024, 2, 14)));
+      expect(_page(tester), 'true/true 29..3(35)');
+      expect(await _tapArrow(tester, log, next), [
+        'changed 2024-3-1 0:0 .. 2024-3-31 0:0',
+        'page 2024-3-1 0:0',
+        'true/true 26..31(35)',
+      ]);
+      expect(await _tapArrow(tester, log, back), [
+        'changed 2024-2-1 0:0 .. 2024-2-29 0:0',
+        'page 2024-2-1 0:0',
+        'true/true 29..3(35)',
+      ]);
+      expect(await _tapArrow(tester, log, back), [
+        'changed 2024-1-1 0:0 .. 2024-1-31 0:0',
+        'page 2024-1-1 0:0',
+        'true/true 1..4(35)',
+      ]);
+    });
+
+    testWidgets('B week, bounded', (tester) async {
+      await _setNavView(tester);
+      final log = <String>[];
+      await tester.pumpWidget(_navCalendar(log,
+          selectedDay: DateTime(2024, 2, 14),
+          format: CalendarFormat.week,
+          firstDay: DateTime(2024, 2, 5),
+          lastDay: DateTime(2024, 3, 3)));
+      expect(_page(tester), 'true/true 12..18(7)');
+      expect(await _tapArrow(tester, log, next), [
+        'changed 2024-2-18 0:0 .. 2024-2-29 0:0',
+        'page 2024-2-18 0:0',
+        'true/true 12..18(7)',
+      ]);
+      expect(await _tapArrow(tester, log, next), [
+        'changed 2024-3-1 0:0 .. 2024-3-10 0:0',
+        'page 2024-3-1 0:0',
+        'true/true 26..3(7)',
+      ]);
+      expect(await _tapArrow(tester, log, next), [
+        'changed 2024-3-11 0:0 .. 2024-3-16 0:0',
+        'page 2024-3-11 0:0',
+        'true/false 11..17(7)',
+      ]);
+      expect(await _tapArrow(tester, log, back), [
+        'changed 2024-3-4 0:0 .. 2024-3-9 0:0',
+        'page 2024-3-4 0:0',
+        'true/false 4..10(7)',
+      ]);
+      expect(await _tapArrow(tester, log, back), [
+        'changed 2024-2-26 0:0 .. 2024-3-2 0:0',
+        'page 2024-2-26 0:0',
+        'true/true 26..3(7)',
+      ]);
+      expect(await _tapArrow(tester, log, back), [
+        'changed 2024-2-19 0:0 .. 2024-2-24 0:0',
+        'page 2024-2-19 0:0',
+        'true/true 19..25(7)',
+      ]);
+    });
+
+    testWidgets('C two weeks', (tester) async {
+      await _setNavView(tester);
+      final log = <String>[];
+      await tester.pumpWidget(_navCalendar(log,
+          selectedDay: DateTime(2024, 1, 17), format: CalendarFormat.twoWeeks));
+      expect(_page(tester), 'true/true 15..28(14)');
+      expect(await _tapArrow(tester, log, next), [
+        'changed 2024-1-28 0:0 .. 2024-2-15 0:0',
+        'page 2024-1-28 0:0',
+        'true/true 22..4(14)',
+      ]);
+      expect(await _tapArrow(tester, log, back), [
+        'changed 2024-1-14 0:0 .. 2024-2-1 0:0',
+        'page 2024-1-14 0:0',
+        'true/true 8..21(14)',
+      ]);
+      expect(await _tapArrow(tester, log, back), [
+        'changed 2023-12-31 0:0 .. 2024-1-18 0:0',
+        'page 2023-12-31 0:0',
+        'true/true 25..7(14)',
+      ]);
+    });
+
+    testWidgets('D month, bounded', (tester) async {
+      await _setNavView(tester);
+      final log = <String>[];
+      await tester.pumpWidget(_navCalendar(log,
+          selectedDay: DateTime(2024, 2, 14),
+          firstDay: DateTime(2024, 1, 1),
+          lastDay: DateTime(2024, 3, 31)));
+      expect(_page(tester), 'true/true 29..3(35)');
+      expect(await _tapArrow(tester, log, back), [
+        'changed 2024-1-1 0:0 .. 2024-1-31 0:0',
+        'page 2024-1-1 0:0',
+        'false/true 1..4(35)',
+      ]);
+      expect(await _tapArrow(tester, log, next), [
+        'changed 2024-2-1 0:0 .. 2024-2-29 0:0',
+        'page 2024-2-1 0:0',
+        'true/true 29..3(35)',
+      ]);
+      expect(await _tapArrow(tester, log, next), [
+        'changed 2024-3-1 0:0 .. 2024-3-31 0:0',
+        'page 2024-3-1 0:0',
+        'true/false 26..31(35)',
+      ]);
+    });
+
+    testWidgets('E month/year dropdowns', (tester) async {
+      await _setNavView(tester);
+      final log = <String>[];
+      await tester.pumpWidget(_navCalendar(log,
+          selectedDay: DateTime(2024, 2, 14),
+          firstDay: DateTime(2023, 3, 10),
+          lastDay: DateTime(2025, 10, 20),
+          showComboboxForMonthYear: true));
+      expect(_page(tester), 'true/true 29..3(35)');
+      expect(await _pickDropdown(tester, log, 1, '2025'), [
+        'year 2025',
+        'changed 2025-2-1 0:0 .. 2025-2-28 0:0',
+        'page 2025-2-1 0:0',
+        'true/true 27..2(35)',
+      ]);
+      expect(await _pickDropdown(tester, log, 1, '2023'), [
+        'year 2023',
+        'changed 2023-3-1 0:0 .. 2023-3-31 0:0',
+        'page 2023-3-1 0:0',
+        'false/true 27..2(35)',
+      ]);
+      expect(await _pickDropdown(tester, log, 0, 'October'), [
+        'month 10',
+        'changed 2023-10-1 0:0 .. 2023-10-31 0:0',
+        'page 2023-10-1 0:0',
+        'true/true 25..5(42)',
+      ]);
+      expect(await _pickDropdown(tester, log, 1, '2025'), [
+        'year 2025',
+        'changed 2025-10-1 0:0 .. 2025-10-31 0:0',
+        'page 2025-10-1 0:0',
+        'true/false 29..2(35)',
+      ]);
+    });
+  });
+
+  group('Characterization: weekday header structure', () {
+    for (final (name, style, expected) in [
+      (
+        'default style',
+        null,
+        const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+      ),
+      (
+        'custom weekdayTextStyle',
+        CalendarStyle(
+            weekdayTextStyle:
+                const TextStyle(fontSize: 9, color: Colors.green)),
+        const TextStyle(fontSize: 9, color: Colors.green),
+      ),
+    ]) {
+      testWidgets(name, (tester) async {
+        await _setNavView(tester);
+        await tester.pumpWidget(_app(CalendarEssentials(
+          events: const [],
+          selectedDay: DateTime(2024, 2, 14),
+          calendarStyle: style,
+        )));
+        final row = tester.widget<Row>(find
+            .ancestor(of: find.text('Monday'), matching: find.byType(Row))
+            .first);
+        expect(row.mainAxisAlignment, MainAxisAlignment.start);
+        expect(row.children, hasLength(7));
+        final labels = <String>[];
+        for (final child in row.children) {
+          final expanded = child as Expanded;
+          expect(expanded.flex, 1);
+          expect(expanded.fit, FlexFit.tight);
+          final pad = expanded.child as Padding;
+          expect(pad.padding, const EdgeInsets.all(3.0));
+          final center = pad.child as Center;
+          expect(center.alignment, Alignment.center);
+          expect(center.widthFactor, isNull);
+          expect(center.heightFactor, isNull);
+          final text = center.child as Text;
+          expect(text.textAlign, TextAlign.center);
+          expect(text.style, expected);
+          labels.add(text.data!);
+        }
+        expect(labels, [
+          'Monday',
+          'Tuesday',
+          'Wednesday',
+          'Thursday',
+          'Friday',
+          'Saturday',
+          'Sunday',
         ]);
       });
     }
