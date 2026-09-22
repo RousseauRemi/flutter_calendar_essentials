@@ -752,39 +752,22 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   Widget _buildCalendar() {
     final weekdayHeader = _buildWeekdayHeader();
 
-    switch (_calendarFormat) {
-      case CalendarFormat.week:
-        return Column(
-          children: [
-            weekdayHeader,
-            Wrap(
-              alignment: WrapAlignment.spaceAround,
-              children: _buildWeeks(1),
-            )
-          ],
-        );
-      case CalendarFormat.twoWeeks:
-        return Column(
-          children: [
-            weekdayHeader,
-            Wrap(
-              alignment: WrapAlignment.center,
-              children: _buildWeeks(2),
-            )
-          ],
-        );
-      case CalendarFormat.month:
-        return Column(
-          children: [
-            weekdayHeader,
-            Wrap(
-              alignment: WrapAlignment.center,
-              // Max weeks any month can need; will be recalculated dynamically
-              children: _buildWeeks(6),
-            )
-          ],
-        );
-    }
+    final (alignment, numberOfWeeks) = switch (_calendarFormat) {
+      CalendarFormat.week => (WrapAlignment.spaceAround, 1),
+      CalendarFormat.twoWeeks => (WrapAlignment.center, 2),
+      // Max weeks any month can need; will be recalculated dynamically
+      CalendarFormat.month => (WrapAlignment.center, 6),
+    };
+
+    return Column(
+      children: [
+        weekdayHeader,
+        Wrap(
+          alignment: alignment,
+          children: _buildWeeks(numberOfWeeks),
+        )
+      ],
+    );
   }
 
   /// Computes the width of each day cell
