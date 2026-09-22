@@ -131,6 +131,16 @@ Future<List<String>> _pickDropdown(
   return [...log, _page(tester)];
 }
 
+Future<List<String>> _pickFormat(
+    WidgetTester tester, List<String> log, String text) async {
+  log.clear();
+  await tester.tap(find.byType(DropdownButton<CalendarFormat>));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(text).last, warnIfMissed: false);
+  await tester.pumpAndSettle();
+  return [...log, _page(tester)];
+}
+
 void main() {
   group('Characterization: day grid', () {
     testWidgets('month view of Feb 2024 lists Jan 29 .. Mar 3', (tester) async {
@@ -590,5 +600,132 @@ void main() {
         ]);
       });
     }
+  });
+
+  group('Characterization: format dropdown', () {
+    testWidgets('T1 callbacks and grid per format', (tester) async {
+      await _setNavView(tester);
+      final log = <String>[];
+      await tester
+          .pumpWidget(_navCalendar(log, selectedDay: DateTime(2024, 2, 14)));
+      final dropdown = tester.widget<DropdownButton<CalendarFormat>>(
+          find.byType(DropdownButton<CalendarFormat>));
+      expect(dropdown.value, CalendarFormat.month);
+      expect(dropdown.items!.map((i) => i.value), CalendarFormat.values);
+      expect(dropdown.items!.map((i) => (i.child as Text).data),
+          ['Week', 'Two weeks', 'Month']);
+      expect(await _pickFormat(tester, log, 'Week'), [
+        'changed 2024-2-1 0:0 .. 2024-2-9 0:0',
+        'format CalendarFormat.week',
+        'true/true 29..4(7)',
+      ]);
+      expect(await _pickFormat(tester, log, 'Two weeks'), [
+        'changed 2024-2-1 0:0 .. 2024-2-16 0:0',
+        'format CalendarFormat.twoWeeks',
+        'true/true 29..11(14)',
+      ]);
+      expect(await _pickFormat(tester, log, 'Month'), [
+        'changed 2024-2-1 0:0 .. 2024-2-29 0:0',
+        'format CalendarFormat.month',
+        'true/true 29..3(35)',
+      ]);
+    });
+
+    testWidgets('T1b no callbacks', (tester) async {
+      await _setNavView(tester);
+      await tester.pumpWidget(_app(CalendarEssentials(
+        events: const [],
+        selectedDay: DateTime(2024, 2, 14),
+      )));
+      expect(await _pickFormat(tester, <String>[], 'Week'),
+          ['true/true 29..4(7)']);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('Characterization: day tap', () {
+    const red = BoxDecoration(color: Colors.red, shape: BoxShape.circle);
+
+    testWidgets('T2 callback gets the validated day', (tester) async {
+      await _setNavView(tester);
+      final log = <String>[];
+      await tester.pumpWidget(_app(CalendarEssentials(
+        events: const [],
+        selectedDay: DateTime(2024, 2, 14),
+        firstDay: DateTime(2024, 2, 5),
+        lastDay: DateTime(2024, 3, 3),
+        onDaySelected: (d) => log.add('day ${_d(d)}'),
+      )));
+      await tester.tap(find.text('20'));
+      await tester.pump();
+      expect(log, ['day 2024-2-20 0:0']);
+      expect(
+          find.descendant(of: _containerWith(red), matching: find.text('20')),
+          findsOneWidget);
+      log.clear();
+      await tester.tap(find.text('30'));
+      await tester.pump();
+      expect(log, ['day 2024-2-5 0:0']);
+      expect(find.descendant(of: _containerWith(red), matching: find.text('5')),
+          findsOneWidget);
+    });
+
+    testWidgets('T2b no callback', (tester) async {
+      await _setNavView(tester);
+      await tester.pumpWidget(_app(CalendarEssentials(
+        events: const [],
+        selectedDay: DateTime(2024, 2, 14),
+      )));
+      await tester.tap(find.text('20'));
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+      expect(
+          find.descendant(of: _containerWith(red), matching: find.text('20')),
+          findsOneWidget);
+    });
+  });
+
+  group('Characterization: combobox items', () {
+    testWidgets('T3 month and year items, labels, underline', (tester) async {
+      await _setNavView(tester);
+      await tester.pumpWidget(_app(CalendarEssentials(
+        events: const [],
+        showComboboxForMonthYear: true,
+        selectedDay: DateTime(2024, 5, 1),
+        firstDay: DateTime(2024, 3, 10),
+        lastDay: DateTime(2025, 10, 20),
+      )));
+      final dropdowns = tester
+          .widgetList<DropdownButton<int>>(find.byType(DropdownButton<int>))
+          .toList();
+      expect(dropdowns.length, 2);
+      final month = dropdowns.first;
+      expect(month.value, 5);
+      expect(
+          month.items!.map((i) => i.value), [for (var m = 3; m <= 12; m++) m]);
+      expect(month.items!.map((i) => (i.child as Text).data), [
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+      ]);
+      final year = dropdowns.last;
+      expect(year.value, 2024);
+      expect(year.items!.map((i) => i.value), [2024, 2025]);
+      expect(year.items!.map((i) => (i.child as Text).data), ['2024', '2025']);
+      for (final d in dropdowns) {
+        final underline = d.underline;
+        expect(underline, isA<Container>());
+        expect((underline as Container).child, isNull);
+        expect(underline.decoration, isNull);
+        expect(d.onChanged, isNotNull);
+      }
+    });
   });
 }
