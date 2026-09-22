@@ -230,14 +230,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
         break;
     }
 
-    _computeEnabledPages(firstDateOfThePreviousPage);
-
-    setState(() {
-      _firstDayDisplayed = firstDateOfThePreviousPage;
-      _selectedDay = _computeSelectedDay(firstDateOfThePreviousPage);
-    });
-
-    _notifyPageChange();
+    _goToPage(firstDateOfThePreviousPage);
   }
 
   /// Navigates to the next page
@@ -246,13 +239,19 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
         _computeLastDateOfCalendarFormat(_firstDayDisplayed, _calendarFormat);
     DateTime firstDateOfTheNextPage = DateTime(lastDateOfCurrentPage.year,
         lastDateOfCurrentPage.month, lastDateOfCurrentPage.day + 1);
-    _computeEnabledPages(firstDateOfTheNextPage);
+    _goToPage(firstDateOfTheNextPage);
+  }
+
+  /// Displays the page starting at [firstDate] and notifies listeners
+  void _goToPage(DateTime firstDate, [VoidCallback? beforeNotify]) {
+    _computeEnabledPages(firstDate);
 
     setState(() {
-      _firstDayDisplayed = firstDateOfTheNextPage;
-      _selectedDay = _computeSelectedDay(firstDateOfTheNextPage);
+      _firstDayDisplayed = firstDate;
+      _selectedDay = _computeSelectedDay(firstDate);
     });
 
+    beforeNotify?.call();
     _notifyPageChange();
   }
 
@@ -368,36 +367,16 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
       newMonth = availableMonths.first;
     }
 
-    setState(() {
-      _firstDayDisplayed = DateTime(year, newMonth, 1);
-      _selectedDay = _computeSelectedDay(_firstDayDisplayed);
-    });
-
-    _computeEnabledPages(_firstDayDisplayed);
-
-    if (widget.onYearChanged != null) {
-      widget.onYearChanged!(year);
-    }
-
-    _notifyPageChange();
+    _goToPage(
+        DateTime(year, newMonth, 1), () => widget.onYearChanged?.call(year));
   }
 
   /// Handles month selection from dropdown
   void _onMonthSelected(int? month) {
     if (month == null) return;
 
-    setState(() {
-      _firstDayDisplayed = DateTime(_firstDayDisplayed.year, month, 1);
-      _selectedDay = _computeSelectedDay(_firstDayDisplayed);
-    });
-
-    _computeEnabledPages(_firstDayDisplayed);
-
-    if (widget.onMonthChanged != null) {
-      widget.onMonthChanged!(month);
-    }
-
-    _notifyPageChange();
+    _goToPage(DateTime(_firstDayDisplayed.year, month, 1),
+        () => widget.onMonthChanged?.call(month));
   }
 
   /// Returns the localized month name
