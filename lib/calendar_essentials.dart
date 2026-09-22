@@ -701,12 +701,9 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   /// Builds a week of day cells
   List<Widget> _buildWeek(DateTime date, double dayWidth, double dayHeight) {
     List<Widget> week = [];
-    final firstDayOfWeekIndex = _firstDayOfWeek.index;
 
     for (int dayIndex = 0; dayIndex < 7; dayIndex++) {
-      final int adjustedDayIndex = dayIndex + firstDayOfWeekIndex;
-      final DateTime day = DateTime(date.year, date.month,
-          date.day + adjustedDayIndex - firstDayOfWeekIndex);
+      final DateTime day = DateTime(date.year, date.month, date.day + dayIndex);
 
       week.add(_buildDayCell(day, dayWidth, dayHeight));
     }
