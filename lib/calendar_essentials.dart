@@ -392,51 +392,39 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
     return monthNames[month - 1];
   }
 
-  /// Builds the month selection dropdown
-  Widget _buildMonthCombobox() {
-    final availableMonths = _getAvailableMonths(_firstDayDisplayed.year);
-    const defaultStyle = TextStyle(
-      fontSize: 18,
-      fontWeight: FontWeight.bold,
-      color: Colors.black,
-    );
+  static const TextStyle _comboboxDefaultStyle = TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.bold,
+    color: Colors.black,
+  );
 
+  /// Builds a month or year selection dropdown
+  Widget _buildIntCombobox(int value, List<int> items,
+      String Function(int) label, ValueChanged<int?> onChanged) {
     return DropdownButton<int>(
-      value: _firstDayDisplayed.month,
+      value: value,
       underline: Container(),
-      style: widget.calendarStyle?.comboboxTextStyle ?? defaultStyle,
-      onChanged: _onMonthSelected,
-      items: availableMonths.map<DropdownMenuItem<int>>((int month) {
+      style: widget.calendarStyle?.comboboxTextStyle ?? _comboboxDefaultStyle,
+      onChanged: onChanged,
+      items: items.map<DropdownMenuItem<int>>((int item) {
         return DropdownMenuItem<int>(
-          value: month,
-          child: Text(_getMonthName(month)),
+          value: item,
+          child: Text(label(item)),
         );
       }).toList(),
     );
   }
+
+  /// Builds the month selection dropdown
+  Widget _buildMonthCombobox() => _buildIntCombobox(
+      _firstDayDisplayed.month,
+      _getAvailableMonths(_firstDayDisplayed.year),
+      _getMonthName,
+      _onMonthSelected);
 
   /// Builds the year selection dropdown
-  Widget _buildYearCombobox() {
-    final availableYears = _getAvailableYears();
-    const defaultStyle = TextStyle(
-      fontSize: 18,
-      fontWeight: FontWeight.bold,
-      color: Colors.black,
-    );
-
-    return DropdownButton<int>(
-      value: _firstDayDisplayed.year,
-      underline: Container(),
-      style: widget.calendarStyle?.comboboxTextStyle ?? defaultStyle,
-      onChanged: _onYearSelected,
-      items: availableYears.map<DropdownMenuItem<int>>((int year) {
-        return DropdownMenuItem<int>(
-          value: year,
-          child: Text(year.toString()),
-        );
-      }).toList(),
-    );
-  }
+  Widget _buildYearCombobox() => _buildIntCombobox(_firstDayDisplayed.year,
+      _getAvailableYears(), (year) => year.toString(), _onYearSelected);
 
   /// Builds the calendar header with navigation controls
   Widget _buildHeader() {
