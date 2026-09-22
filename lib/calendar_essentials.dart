@@ -109,6 +109,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   static const double _headerWrapThreshold = 400.0;
   static const double _shortNameWidthThreshold = 40.0;
   static const double _mediumNameWidthThreshold = 70.0;
+  static final CalendarStyle _defaultCalendarStyle = CalendarStyle();
 
   Weekday _firstDayOfWeek = Weekday.monday;
   CalendarFormat _calendarFormat = CalendarFormat.month;
@@ -652,17 +653,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   Widget _buildDayCell(DateTime day, double dayWidth, double dayHeight) {
     EventCalendarEssential? event = _findEventForDay(day);
 
-    final style = widget.calendarStyle ??
-        CalendarStyle(
-          todayDecoration: const BoxDecoration(
-            color: Colors.blue,
-            shape: BoxShape.circle,
-          ),
-          selectedDecoration: const BoxDecoration(
-            color: Colors.red,
-            shape: BoxShape.circle,
-          ),
-        );
+    final style = widget.calendarStyle ?? _defaultCalendarStyle;
     event ??= SimpleEventCalendarEssential(style, day, true);
 
     return Padding(
