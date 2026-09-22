@@ -242,10 +242,10 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
 
   /// Navigates to the next page
   void _nextPage() {
-    DateTime lastDateOfTheCurrentMonth =
+    DateTime lastDateOfCurrentPage =
         _computeLastDateOfCalendarFormat(_firstDayDisplayed, _calendarFormat);
-    DateTime firstDateOfTheNextPage = DateTime(lastDateOfTheCurrentMonth.year,
-        lastDateOfTheCurrentMonth.month, lastDateOfTheCurrentMonth.day + 1);
+    DateTime firstDateOfTheNextPage = DateTime(lastDateOfCurrentPage.year,
+        lastDateOfCurrentPage.month, lastDateOfCurrentPage.day + 1);
     _computeEnabledPages(firstDateOfTheNextPage);
 
     setState(() {
@@ -693,13 +693,13 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
     numberOfWeeks =
         _calculateNumberOfWeeksToDisplayTheWholeMonth(date, numberOfWeeks);
 
-    final weeks = <Widget>[];
-    final dayWidth = _computeWidthCase();
+    final cells = <Widget>[];
+    final dayWidth = _computeDayCellWidth();
     final dayHeight = widget.heightCell ?? _defaultCellHeight;
 
     for (int weekIndex = 0; weekIndex < numberOfWeeks; weekIndex++) {
       for (final cell in _buildWeek(date, dayWidth, dayHeight)) {
-        weeks.add(SizedBox(
+        cells.add(SizedBox(
           width: dayWidth,
           child: cell,
         ));
@@ -707,14 +707,14 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
       date = DateTime(date.year, date.month, date.day + 7);
     }
 
-    return weeks;
+    return cells;
   }
 
   /// Builds the weekday header row
   Widget _buildWeekdayHeader() {
     final weekdays = <Widget>[];
     final firstDayOfWeekIndex = _firstDayOfWeek.index;
-    final weekdayNames = _weekdayNamesForWidth(_computeWidthCase());
+    final weekdayNames = _weekdayNamesForWidth(_computeDayCellWidth());
 
     for (int i = firstDayOfWeekIndex; i < firstDayOfWeekIndex + 7; i++) {
       final weekdayIndex = i % Weekday.values.length;
@@ -765,7 +765,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   }
 
   /// Computes the width of each day cell
-  double _computeWidthCase() {
+  double _computeDayCellWidth() {
     // Account for padding: each cell has 3px padding on all sides (6px horizontal)
     // Total horizontal padding for 7 cells = 7 * 6 = 42px
     // Total margin = 16px
