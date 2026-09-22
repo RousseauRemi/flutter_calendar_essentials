@@ -257,15 +257,9 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
 
   /// Notifies listeners about page changes
   void _notifyPageChange() {
-    if (widget.onChanged != null) {
-      widget.onChanged!(
-          _firstDayDisplayed,
-          _computeLastDateOfCalendarFormat(
-              _firstDayDisplayed, _calendarFormat));
-    }
-    if (widget.onPageChanged != null) {
-      widget.onPageChanged!(_firstDayDisplayed);
-    }
+    widget.onChanged?.call(_firstDayDisplayed,
+        _computeLastDateOfCalendarFormat(_firstDayDisplayed, _calendarFormat));
+    widget.onPageChanged?.call(_firstDayDisplayed);
   }
 
   /// Computes the selected day within the current view
@@ -489,15 +483,11 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
                     DateTime(_selectedDay.year, _selectedDay.month, 1);
               }
               _calendarFormat = newFormat;
-              if (widget.onChanged != null) {
-                widget.onChanged!(
-                    _firstDayDisplayed,
-                    _computeLastDateOfCalendarFormat(
-                        _firstDayDisplayed, _calendarFormat));
-              }
-              if (widget.onFormatChanged != null) {
-                widget.onFormatChanged!(newFormat);
-              }
+              widget.onChanged?.call(
+                  _firstDayDisplayed,
+                  _computeLastDateOfCalendarFormat(
+                      _firstDayDisplayed, _calendarFormat));
+              widget.onFormatChanged?.call(newFormat);
             });
           },
           items: CalendarFormat.values
@@ -611,9 +601,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
             final validatedDay = _validateSelectedDay(day);
             setState(() {
               _selectedDay = validatedDay;
-              if (widget.onDaySelected != null) {
-                widget.onDaySelected!(validatedDay);
-              }
+              widget.onDaySelected?.call(validatedDay);
             });
           },
           child: Column(
