@@ -295,75 +295,41 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
     }
   }
 
-  /// Returns the display name for a weekday with responsive formatting
-  String _getWeekdayName(Weekday weekday, {String format = 'auto'}) {
-    // Determine format based on cell width if auto
-    String actualFormat = format;
-    if (format == 'auto') {
-      final width = _computeWidthCase();
-      if (width < _shortNameWidthThreshold) {
-        actualFormat = 'short';
-      } else if (width < _mediumNameWidthThreshold) {
-        actualFormat = 'medium';
-      } else {
-        actualFormat = 'long';
-      }
-    }
+  static const Map<Weekday, String> _shortWeekdayNames = {
+    Weekday.monday: 'M',
+    Weekday.tuesday: 'T',
+    Weekday.wednesday: 'W',
+    Weekday.thursday: 'T',
+    Weekday.friday: 'F',
+    Weekday.saturday: 'S',
+    Weekday.sunday: 'S',
+  };
 
-    switch (actualFormat) {
-      case 'short':
-        switch (weekday) {
-          case Weekday.monday:
-            return 'M';
-          case Weekday.tuesday:
-            return 'T';
-          case Weekday.wednesday:
-            return 'W';
-          case Weekday.thursday:
-            return 'T';
-          case Weekday.friday:
-            return 'F';
-          case Weekday.saturday:
-            return 'S';
-          case Weekday.sunday:
-            return 'S';
-        }
-      case 'medium':
-        switch (weekday) {
-          case Weekday.monday:
-            return 'Mon';
-          case Weekday.tuesday:
-            return 'Tue';
-          case Weekday.wednesday:
-            return 'Wed';
-          case Weekday.thursday:
-            return 'Thu';
-          case Weekday.friday:
-            return 'Fri';
-          case Weekday.saturday:
-            return 'Sat';
-          case Weekday.sunday:
-            return 'Sun';
-        }
-      case 'long':
-      default:
-        switch (weekday) {
-          case Weekday.monday:
-            return 'Monday';
-          case Weekday.tuesday:
-            return 'Tuesday';
-          case Weekday.wednesday:
-            return 'Wednesday';
-          case Weekday.thursday:
-            return 'Thursday';
-          case Weekday.friday:
-            return 'Friday';
-          case Weekday.saturday:
-            return 'Saturday';
-          case Weekday.sunday:
-            return 'Sunday';
-        }
-    }
+  static const Map<Weekday, String> _mediumWeekdayNames = {
+    Weekday.monday: 'Mon',
+    Weekday.tuesday: 'Tue',
+    Weekday.wednesday: 'Wed',
+    Weekday.thursday: 'Thu',
+    Weekday.friday: 'Fri',
+    Weekday.saturday: 'Sat',
+    Weekday.sunday: 'Sun',
+  };
+
+  static const Map<Weekday, String> _longWeekdayNames = {
+    Weekday.monday: 'Monday',
+    Weekday.tuesday: 'Tuesday',
+    Weekday.wednesday: 'Wednesday',
+    Weekday.thursday: 'Thursday',
+    Weekday.friday: 'Friday',
+    Weekday.saturday: 'Saturday',
+    Weekday.sunday: 'Sunday',
+  };
+
+  /// Returns the weekday names that fit the given cell width
+  Map<Weekday, String> _weekdayNamesForWidth(double width) {
+    if (width < _shortNameWidthThreshold) return _shortWeekdayNames;
+    if (width < _mediumNameWidthThreshold) return _mediumWeekdayNames;
+    return _longWeekdayNames;
   }
 
   /// Returns list of available years based on date constraints
@@ -754,6 +720,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   Widget _buildWeekdayHeader() {
     final weekdays = <Widget>[];
     final firstDayOfWeekIndex = _firstDayOfWeek.index;
+    final weekdayNames = _weekdayNamesForWidth(_computeWidthCase());
 
     for (int i = firstDayOfWeekIndex; i < firstDayOfWeekIndex + 7; i++) {
       final weekdayIndex = i % Weekday.values.length;
@@ -764,7 +731,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
             padding: const EdgeInsets.all(3.0),
             child: Center(
               child: Text(
-                _getWeekdayName(weekday),
+                weekdayNames[weekday]!,
                 textAlign: TextAlign.center,
                 style: widget.calendarStyle?.weekdayTextStyle ??
                     const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
