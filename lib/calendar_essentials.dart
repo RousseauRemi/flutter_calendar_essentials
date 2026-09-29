@@ -133,7 +133,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
         _computeFirstDateOfCalendarFormat(initialDate, _calendarFormat);
 
     // Validate selectedDay against date range
-    _selectedDay = _validateSelectedDay(widget.selectedDay ?? initialDate);
+    _selectedDay = _validateSelectedDay(initialDate);
 
     _computeEnabledPages(_firstDayDisplayed);
     _buildEventMap();
