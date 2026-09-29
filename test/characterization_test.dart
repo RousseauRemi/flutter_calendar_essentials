@@ -757,4 +757,65 @@ void main() {
       ]);
     });
   });
+
+  group('Characterization: initial selected day', () {
+    const red = BoxDecoration(color: Colors.red, shape: BoxShape.circle);
+
+    List<String> redTexts(WidgetTester tester) => tester
+        .widgetList<Text>(find.descendant(
+            of: _containerWith(red), matching: find.byType(Text)))
+        .map((t) => t.data ?? '')
+        .toList();
+
+    testWidgets('T7a no selectedDay selects today', (tester) async {
+      final now = DateTime.now();
+      await tester.pumpWidget(_app(const CalendarEssentials(events: [])));
+      expect(redTexts(tester), ['${now.day}']);
+    });
+
+    testWidgets('T7b selectedDay with a time selects that day', (tester) async {
+      await tester.pumpWidget(_app(CalendarEssentials(
+        events: const [],
+        selectedDay: DateTime(2024, 2, 20, 15, 30),
+      )));
+      expect(redTexts(tester), ['20']);
+      expect(find.text('February 2024'), findsOneWidget);
+    });
+
+    testWidgets('T7c selectedDay before firstDay is clamped', (tester) async {
+      await tester.pumpWidget(_app(CalendarEssentials(
+        events: const [],
+        selectedDay: DateTime(2024, 2, 1),
+        firstDay: DateTime(2024, 2, 14),
+      )));
+      expect(redTexts(tester), ['14']);
+      expect(find.text('February 2024'), findsOneWidget);
+    });
+
+    testWidgets('T7d selectedDay after lastDay is clamped', (tester) async {
+      await tester.pumpWidget(_app(CalendarEssentials(
+        events: const [],
+        selectedDay: DateTime(2024, 3, 20),
+        lastDay: DateTime(2024, 3, 3),
+      )));
+      expect(redTexts(tester), ['3']);
+      expect(find.text('March 2024'), findsOneWidget);
+    });
+
+    testWidgets('T7e page built from the unclamped day, no callback',
+        (tester) async {
+      final log = <String>[];
+      await tester.pumpWidget(_app(CalendarEssentials(
+        events: const [],
+        selectedDay: DateTime(2024, 1, 10),
+        firstDay: DateTime(2024, 2, 5),
+        lastDay: DateTime(2024, 3, 3),
+        onChanged: (a, b) => log.add('changed ${_d(a)} .. ${_d(b)}'),
+        onDaySelected: (d) => log.add('day ${_d(d)}'),
+      )));
+      expect(find.text('January 2024'), findsOneWidget);
+      expect(_containerWith(red), findsNothing);
+      expect(log, isEmpty);
+    });
+  });
 }
