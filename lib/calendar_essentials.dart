@@ -104,7 +104,8 @@ class CalendarEssentials extends StatefulWidget {
 class _CalendarEssentialsState extends State<CalendarEssentials> {
   // Magic numbers as named constants
   static const double _defaultCellHeight = 38.0;
-  static const double _cellHorizontalPadding = 6.0;
+  static const double _cellPadding = 3.0;
+  static const double _cellHorizontalPadding = 2 * _cellPadding;
   static const double _totalHorizontalMargin = 16.0;
   static const double _headerWrapThreshold = 400.0;
   static const double _shortNameWidthThreshold = 40.0;
@@ -569,7 +570,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
     event ??= SimpleEventCalendarEssential(style, day, true);
 
     return Padding(
-      padding: const EdgeInsets.all(3.0),
+      padding: const EdgeInsets.all(_cellPadding),
       child: SizedBox(
         width: dayWidth,
         height: dayHeight,
@@ -666,7 +667,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
             Weekday.values[(firstDayOfWeekIndex + i) % Weekday.values.length];
         return Expanded(
           child: Padding(
-            padding: const EdgeInsets.all(3.0),
+            padding: const EdgeInsets.all(_cellPadding),
             child: Center(
               child: Text(
                 weekdayNames[weekday]!,
