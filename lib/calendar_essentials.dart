@@ -180,12 +180,12 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   /// Computes whether previous/next page navigation is enabled
   void _computeEnabledPages(DateTime date) {
     // Note: In the case of a click on the next or previous page, the date will be identical
-    DateTime newDate = _computeFirstDateOfCalendarFormat(date, _calendarFormat);
+    final newDate = _computeFirstDateOfCalendarFormat(date, _calendarFormat);
     _previousPageEnabled = widget.firstDay == null ||
         !(newDate.isBefore(widget.firstDay!) ||
             newDate.isAtSameMomentAs(widget.firstDay!));
 
-    DateTime nextFutureDate =
+    final nextFutureDate =
         _computeLastDateOfCalendarFormat(newDate, _calendarFormat);
     _nextPageEnabled = widget.lastDay == null ||
         !(nextFutureDate.isAfter(widget.lastDay!) ||
@@ -229,9 +229,9 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
 
   /// Navigates to the next page
   void _nextPage() {
-    DateTime lastDateOfCurrentPage =
+    final lastDateOfCurrentPage =
         _computeLastDateOfCalendarFormat(_firstDayDisplayed, _calendarFormat);
-    DateTime firstDateOfTheNextPage = DateTime(lastDateOfCurrentPage.year,
+    final firstDateOfTheNextPage = DateTime(lastDateOfCurrentPage.year,
         lastDateOfCurrentPage.month, lastDateOfCurrentPage.day + 1);
     _goToPage(firstDateOfTheNextPage);
   }
@@ -637,14 +637,14 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
     var date = _computeFirstDateOfCalendarFormat(
         _firstDayDisplayed, CalendarFormat.week);
 
-    numberOfWeeks =
+    final weeksToDisplay =
         _calculateNumberOfWeeksToDisplayTheWholeMonth(date, numberOfWeeks);
 
     final cells = <Widget>[];
     final dayWidth = _computeDayCellWidth();
     final dayHeight = widget.heightCell ?? _defaultCellHeight;
 
-    for (int weekIndex = 0; weekIndex < numberOfWeeks; weekIndex++) {
+    for (int weekIndex = 0; weekIndex < weeksToDisplay; weekIndex++) {
       for (final cell in _buildWeek(date, dayWidth, dayHeight)) {
         cells.add(SizedBox(
           width: dayWidth,
