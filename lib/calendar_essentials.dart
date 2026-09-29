@@ -318,6 +318,21 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
     Weekday.sunday: 'Sunday',
   };
 
+  static const List<String> _monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
   /// Returns the weekday names that fit the given cell width
   Map<Weekday, String> _weekdayNamesForWidth(double width) {
     if (width < _shortNameWidthThreshold) return _shortWeekdayNames;
@@ -375,21 +390,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
 
   /// Returns the localized month name
   String _getMonthName(int month) {
-    const monthNames = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December'
-    ];
-    return monthNames[month - 1];
+    return _monthNames[month - 1];
   }
 
   static const TextStyle _comboboxDefaultStyle = TextStyle(
