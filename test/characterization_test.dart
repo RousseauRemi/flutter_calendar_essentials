@@ -727,5 +727,34 @@ void main() {
         expect(d.onChanged, isNotNull);
       }
     });
+
+    testWidgets('T6 unbounded month items are January..December',
+        (tester) async {
+      await _setNavView(tester);
+      await tester.pumpWidget(_app(CalendarEssentials(
+        events: const [],
+        showComboboxForMonthYear: true,
+        selectedDay: DateTime(2024, 5, 1),
+      )));
+      final month = tester
+          .widgetList<DropdownButton<int>>(find.byType(DropdownButton<int>))
+          .first;
+      expect(
+          month.items!.map((i) => i.value), [for (var m = 1; m <= 12; m++) m]);
+      expect(month.items!.map((i) => (i.child as Text).data), [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+      ]);
+    });
   });
 }
