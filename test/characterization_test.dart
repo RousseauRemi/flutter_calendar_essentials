@@ -37,6 +37,24 @@ class _RecordingEvent extends EventCalendarEssential {
   bool isEventSelected(DateTime selectedDay) => false;
 }
 
+final _todayLog = <(DateTime, bool)>[];
+
+class _TodayProbe extends EventCalendarEssential {
+  _TodayProbe(super.date);
+
+  @override
+  Widget buildEvent(bool isSelected, bool isToday) {
+    _todayLog.add((date, isToday));
+    return Text('P${date.day}');
+  }
+
+  @override
+  Widget buildMarkerEvent() => const SizedBox.shrink();
+
+  @override
+  bool isEventSelected(DateTime selectedDay) => false;
+}
+
 Widget _app(Widget calendar) => MaterialApp(home: Scaffold(body: calendar));
 
 List<String> _texts(WidgetTester tester) => tester
@@ -816,6 +834,47 @@ void main() {
       expect(find.text('January 2024'), findsOneWidget);
       expect(_containerWith(red), findsNothing);
       expect(log, isEmpty);
+    });
+  });
+
+  group('Characterization: today flag', () {
+    Future<void> pumpProbes(WidgetTester tester, List<DateTime> dates) async {
+      final now = DateTime.now();
+      _todayLog.clear();
+      await tester.pumpWidget(_app(CalendarEssentials(
+        events: [for (final d in dates) _TodayProbe(d)],
+        selectedDay: DateTime(now.year, now.month, now.day),
+      )));
+    }
+
+    void expectOnlyToday(DateTime expectedToday) {
+      final now = DateTime.now();
+      expect(_todayLog, isNotEmpty);
+      expect(_todayLog.where((e) => e.$2).map((e) => e.$1).toList(),
+          [expectedToday]);
+      for (final e in _todayLog.where((e) => !e.$2)) {
+        expect(
+            (e.$1.year, e.$1.month, e.$1.day) == (now.year, now.month, now.day),
+            isFalse);
+      }
+    }
+
+    testWidgets('T10a: local event dates with a time', (tester) async {
+      final now = DateTime.now();
+      await pumpProbes(tester, [
+        for (var i = -3; i <= 3; i++)
+          DateTime(now.year, now.month, now.day + i, 15, 30)
+      ]);
+      expectOnlyToday(DateTime(now.year, now.month, now.day, 15, 30));
+    });
+
+    testWidgets('T10b: UTC event dates', (tester) async {
+      final now = DateTime.now();
+      await pumpProbes(tester, [
+        for (var i = -3; i <= 3; i++)
+          DateTime.utc(now.year, now.month, now.day + i, 12)
+      ]);
+      expectOnlyToday(DateTime.utc(now.year, now.month, now.day, 12));
     });
   });
 }
