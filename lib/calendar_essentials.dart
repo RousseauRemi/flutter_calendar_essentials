@@ -382,7 +382,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
         () => widget.onMonthChanged?.call(month));
   }
 
-  /// Returns the localized month name
+  /// Returns the English month name for [month] (1-12)
   String _getMonthName(int month) {
     return _monthNames[month - 1];
   }
