@@ -556,7 +556,8 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   /// Checks if a date is today
   bool _isToday(DateTime date) {
     final today = DateTime.now();
-    return _normalizeDate(today) == _normalizeDate(date);
+    return (today.year, today.month, today.day) ==
+        (date.year, date.month, date.day);
   }
 
   /// Finds an event for a specific day using optimized Map lookup
