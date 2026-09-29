@@ -214,21 +214,14 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
 
   /// Navigates to the previous page
   void _previousPage() {
-    DateTime firstDateOfThePreviousPage;
-    switch (_calendarFormat) {
-      case CalendarFormat.week:
-        firstDateOfThePreviousPage = DateTime(_firstDayDisplayed.year,
-            _firstDayDisplayed.month, _firstDayDisplayed.day - 7);
-        break;
-      case CalendarFormat.twoWeeks:
-        firstDateOfThePreviousPage = DateTime(_firstDayDisplayed.year,
-            _firstDayDisplayed.month, _firstDayDisplayed.day - 14);
-        break;
-      case CalendarFormat.month:
-        firstDateOfThePreviousPage = DateTime(_firstDayDisplayed.year,
-            _firstDayDisplayed.month - 1, _firstDayDisplayed.day);
-        break;
-    }
+    final firstDateOfThePreviousPage = switch (_calendarFormat) {
+      CalendarFormat.week => DateTime(_firstDayDisplayed.year,
+          _firstDayDisplayed.month, _firstDayDisplayed.day - 7),
+      CalendarFormat.twoWeeks => DateTime(_firstDayDisplayed.year,
+          _firstDayDisplayed.month, _firstDayDisplayed.day - 14),
+      CalendarFormat.month => DateTime(_firstDayDisplayed.year,
+          _firstDayDisplayed.month - 1, _firstDayDisplayed.day),
+    };
 
     _goToPage(firstDateOfThePreviousPage);
   }
@@ -277,16 +270,11 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   }
 
   /// Returns the display name for a calendar format
-  String _getFormatName(CalendarFormat format) {
-    switch (format) {
-      case CalendarFormat.month:
-        return 'Month';
-      case CalendarFormat.week:
-        return 'Week';
-      case CalendarFormat.twoWeeks:
-        return 'Two weeks';
-    }
-  }
+  String _getFormatName(CalendarFormat format) => switch (format) {
+        CalendarFormat.month => 'Month',
+        CalendarFormat.week => 'Week',
+        CalendarFormat.twoWeeks => 'Two weeks',
+      };
 
   static const Map<Weekday, String> _shortWeekdayNames = {
     Weekday.monday: 'M',
