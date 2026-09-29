@@ -119,7 +119,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   DateTime _selectedDay = DateTime.now();
 
   // Cache for event lookup optimization
-  Map<DateTime, EventCalendarEssential>? _eventMap;
+  late Map<DateTime, EventCalendarEssential> _eventMap;
 
   @override
   void initState() {
@@ -152,7 +152,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
     _eventMap = {};
     for (var event in widget.events) {
       final normalizedDate = _normalizeDate(event.date);
-      _eventMap![normalizedDate] = event;
+      _eventMap[normalizedDate] = event;
     }
   }
 
@@ -570,7 +570,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
 
   /// Finds an event for a specific day using optimized Map lookup
   EventCalendarEssential? _findEventForDay(DateTime day) {
-    return _eventMap?[_normalizeDate(day)];
+    return _eventMap[_normalizeDate(day)];
   }
 
   /// Builds a single day cell
