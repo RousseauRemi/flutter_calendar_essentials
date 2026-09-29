@@ -103,6 +103,7 @@ class CalendarEssentials extends StatefulWidget {
 
 class _CalendarEssentialsState extends State<CalendarEssentials> {
   // Magic numbers as named constants
+  static const int _daysPerWeek = 7;
   static const double _defaultCellHeight = 38.0;
   static const double _cellPadding = 3.0;
   static const double _cellHorizontalPadding = 2 * _cellPadding;
@@ -217,9 +218,9 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   void _previousPage() {
     final firstDateOfThePreviousPage = switch (_calendarFormat) {
       CalendarFormat.week => DateTime(_firstDayDisplayed.year,
-          _firstDayDisplayed.month, _firstDayDisplayed.day - 7),
+          _firstDayDisplayed.month, _firstDayDisplayed.day - _daysPerWeek),
       CalendarFormat.twoWeeks => DateTime(_firstDayDisplayed.year,
-          _firstDayDisplayed.month, _firstDayDisplayed.day - 14),
+          _firstDayDisplayed.month, _firstDayDisplayed.day - 2 * _daysPerWeek),
       CalendarFormat.month => DateTime(_firstDayDisplayed.year,
           _firstDayDisplayed.month - 1, _firstDayDisplayed.day),
     };
@@ -605,7 +606,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
 
   /// Builds a week of day cells
   List<Widget> _buildWeek(DateTime date, double dayWidth, double dayHeight) {
-    return List.generate(7, (dayIndex) {
+    return List.generate(_daysPerWeek, (dayIndex) {
       final DateTime day = DateTime(date.year, date.month, date.day + dayIndex);
       return _buildDayCell(day, dayWidth, dayHeight);
     });
@@ -626,8 +627,8 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
     while (temporaryDate.isBefore(lastDate) ||
         temporaryDate.isAtSameMomentAs(lastDate)) {
       requiredWeeks++;
-      temporaryDate = DateTime(
-          temporaryDate.year, temporaryDate.month, temporaryDate.day + 7);
+      temporaryDate = DateTime(temporaryDate.year, temporaryDate.month,
+          temporaryDate.day + _daysPerWeek);
     }
 
     return requiredWeeks;
@@ -652,7 +653,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
           child: cell,
         ));
       }
-      date = DateTime(date.year, date.month, date.day + 7);
+      date = DateTime(date.year, date.month, date.day + _daysPerWeek);
     }
 
     return cells;
@@ -665,7 +666,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
-      children: List.generate(7, (i) {
+      children: List.generate(_daysPerWeek, (i) {
         final weekday =
             Weekday.values[(firstDayOfWeekIndex + i) % Weekday.values.length];
         return Expanded(
@@ -715,8 +716,8 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
     // Available width = screen width - 16 (margins) - 42 (padding)
     return (MediaQuery.of(context).size.width -
             _totalHorizontalMargin -
-            (7 * _cellHorizontalPadding)) /
-        7;
+            (_daysPerWeek * _cellHorizontalPadding)) /
+        _daysPerWeek;
   }
 
   @override
