@@ -251,9 +251,14 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
 
   /// Notifies listeners about page changes
   void _notifyPageChange() {
+    _notifyRangeChanged();
+    widget.onPageChanged?.call(_firstDayDisplayed);
+  }
+
+  /// Notifies [CalendarEssentials.onChanged] with the displayed range
+  void _notifyRangeChanged() {
     widget.onChanged?.call(_firstDayDisplayed,
         _computeLastDateOfCalendarFormat(_firstDayDisplayed, _calendarFormat));
-    widget.onPageChanged?.call(_firstDayDisplayed);
   }
 
   /// Computes the selected day within the current view
@@ -461,10 +466,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
                     DateTime(_selectedDay.year, _selectedDay.month, 1);
               }
               _calendarFormat = newFormat;
-              widget.onChanged?.call(
-                  _firstDayDisplayed,
-                  _computeLastDateOfCalendarFormat(
-                      _firstDayDisplayed, _calendarFormat));
+              _notifyRangeChanged();
               widget.onFormatChanged?.call(newFormat);
             });
           },
