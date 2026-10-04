@@ -1,4 +1,4 @@
-library flutter_calendar_essentials;
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_essentials/calendar_style.dart';
