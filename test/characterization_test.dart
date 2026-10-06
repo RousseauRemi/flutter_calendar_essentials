@@ -659,6 +659,29 @@ void main() {
           ['true/true 29..4(7)']);
       expect(tester.takeException(), isNull);
     });
+
+    testWidgets('T11 format items keep default item settings', (tester) async {
+      await _setNavView(tester);
+      await tester.pumpWidget(_app(CalendarEssentials(
+        events: const [],
+        selectedDay: DateTime(2024, 2, 14),
+      )));
+      final items = tester
+          .widget<DropdownButton<CalendarFormat>>(
+              find.byType(DropdownButton<CalendarFormat>))
+          .items!;
+      expect(items, hasLength(3));
+      for (final item in items) {
+        expect(item.key, isNull);
+        expect(item.onTap, isNull);
+        expect(item.enabled, isTrue);
+        expect(item.alignment, AlignmentDirectional.centerStart);
+        final text = item.child as Text;
+        expect(text.key, isNull);
+        expect(text.style, isNull);
+        expect(text.textAlign, isNull);
+      }
+    });
   });
 
   group('Characterization: day tap', () {
