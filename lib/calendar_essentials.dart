@@ -629,7 +629,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   }
 
   /// Builds multiple weeks for the calendar
-  List<Widget> _buildWeeks(int numberOfWeeks) {
+  List<Widget> _buildWeeks(int numberOfWeeks, double dayWidth) {
     var date = _computeFirstDateOfCalendarFormat(
         _firstDayDisplayed, CalendarFormat.week);
 
@@ -637,7 +637,6 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
         _calculateNumberOfWeeksToDisplayTheWholeMonth(date, numberOfWeeks);
 
     final cells = <Widget>[];
-    final dayWidth = _computeDayCellWidth();
     final dayHeight = widget.heightCell ?? _defaultCellHeight;
 
     for (int weekIndex = 0; weekIndex < weeksToDisplay; weekIndex++) {
@@ -654,9 +653,9 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   }
 
   /// Builds the weekday header row
-  Widget _buildWeekdayHeader() {
+  Widget _buildWeekdayHeader(double dayWidth) {
     final firstDayOfWeekIndex = _firstDayOfWeek.index;
-    final weekdayNames = _weekdayNamesForWidth(_computeDayCellWidth());
+    final weekdayNames = _weekdayNamesForWidth(dayWidth);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -682,7 +681,8 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
 
   /// Builds the calendar grid
   Widget _buildCalendar() {
-    final weekdayHeader = _buildWeekdayHeader();
+    final dayWidth = _computeDayCellWidth();
+    final weekdayHeader = _buildWeekdayHeader(dayWidth);
 
     final (alignment, numberOfWeeks) = switch (_calendarFormat) {
       CalendarFormat.week => (WrapAlignment.spaceAround, 1),
@@ -696,7 +696,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
         weekdayHeader,
         Wrap(
           alignment: alignment,
-          children: _buildWeeks(numberOfWeeks),
+          children: _buildWeeks(numberOfWeeks, dayWidth),
         )
       ],
     );
