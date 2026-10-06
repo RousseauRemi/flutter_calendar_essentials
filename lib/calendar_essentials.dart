@@ -276,12 +276,12 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
     }
   }
 
-  /// Returns the display name for a calendar format
-  String _getFormatName(CalendarFormat format) => switch (format) {
-        CalendarFormat.month => 'Month',
-        CalendarFormat.week => 'Week',
-        CalendarFormat.twoWeeks => 'Two weeks',
-      };
+  /// Format dropdown items, in [CalendarFormat.values] order
+  static const List<DropdownMenuItem<CalendarFormat>> _formatItems = [
+    DropdownMenuItem(value: CalendarFormat.week, child: Text('Week')),
+    DropdownMenuItem(value: CalendarFormat.twoWeeks, child: Text('Two weeks')),
+    DropdownMenuItem(value: CalendarFormat.month, child: Text('Month')),
+  ];
 
   static const Map<Weekday, String> _shortWeekdayNames = {
     Weekday.monday: 'M',
@@ -471,13 +471,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
               widget.onFormatChanged?.call(newFormat);
             });
           },
-          items: CalendarFormat.values
-              .map<DropdownMenuItem<CalendarFormat>>((CalendarFormat value) {
-            return DropdownMenuItem<CalendarFormat>(
-              value: value,
-              child: Text(_getFormatName(value)),
-            );
-          }).toList(),
+          items: _formatItems,
         );
 
         if (shouldWrap) {
