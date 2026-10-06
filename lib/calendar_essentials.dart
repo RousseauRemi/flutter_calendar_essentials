@@ -344,16 +344,12 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
 
   /// Returns list of available months for a given year
   List<int> _getAvailableMonths(int year) {
-    int startMonth = 1;
-    int endMonth = 12;
-
-    if (widget.firstDay != null && year == widget.firstDay!.year) {
-      startMonth = widget.firstDay!.month;
-    }
-
-    if (widget.lastDay != null && year == widget.lastDay!.year) {
-      endMonth = widget.lastDay!.month;
-    }
+    final startMonth = widget.firstDay != null && year == widget.firstDay!.year
+        ? widget.firstDay!.month
+        : 1;
+    final endMonth = widget.lastDay != null && year == widget.lastDay!.year
+        ? widget.lastDay!.month
+        : 12;
 
     return List.generate(
         endMonth - startMonth + 1, (index) => startMonth + index);
@@ -364,12 +360,12 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
     if (year == null) return;
 
     final availableMonths = _getAvailableMonths(year);
-    int newMonth = _firstDayDisplayed.month;
+    final currentMonth = _firstDayDisplayed.month;
 
     // Adjust month if current month is not available in the new year
-    if (!availableMonths.contains(newMonth)) {
-      newMonth = availableMonths.first;
-    }
+    final newMonth = availableMonths.contains(currentMonth)
+        ? currentMonth
+        : availableMonths.first;
 
     _goToPage(
         DateTime(year, newMonth, 1), () => widget.onYearChanged?.call(year));
