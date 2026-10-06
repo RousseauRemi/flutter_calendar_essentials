@@ -607,11 +607,10 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   }
 
   /// Calculates the number of weeks needed to display the whole month
-  int _calculateNumberOfWeeksToDisplayTheWholeMonth(DateTime date) {
-    var temporaryDate = date;
+  int _calculateNumberOfWeeksToDisplayTheWholeMonth(
+      DateTime firstWeekStart, DateTime lastDate) {
+    var temporaryDate = firstWeekStart;
     int requiredWeeks = 0;
-    final lastDate =
-        _computeLastDateOfCalendarFormat(_firstDayDisplayed, _calendarFormat);
 
     while (temporaryDate.isBefore(lastDate) ||
         temporaryDate.isAtSameMomentAs(lastDate)) {
@@ -682,7 +681,10 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
       CalendarFormat.twoWeeks => (WrapAlignment.center, 2),
       CalendarFormat.month => (
           WrapAlignment.center,
-          _calculateNumberOfWeeksToDisplayTheWholeMonth(firstWeekStart)
+          _calculateNumberOfWeeksToDisplayTheWholeMonth(
+              firstWeekStart,
+              _computeLastDateOfCalendarFormat(
+                  _firstDayDisplayed, CalendarFormat.month))
         ),
     };
 
