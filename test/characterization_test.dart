@@ -195,6 +195,26 @@ void main() {
       )));
       expect(_dayNumbers(tester), [for (var d = 12; d <= 25; d++) '$d']);
     });
+
+    testWidgets('T12a month view of Feb 2021 has 4 weeks', (tester) async {
+      await tester.pumpWidget(_app(CalendarEssentials(
+        events: const [],
+        selectedDay: DateTime(2021, 2, 10),
+      )));
+      expect(_dayNumbers(tester), [for (var d = 1; d <= 28; d++) '$d']);
+    });
+
+    testWidgets('T12b month view of Sep 2024 has 6 weeks', (tester) async {
+      await tester.pumpWidget(_app(CalendarEssentials(
+        events: const [],
+        selectedDay: DateTime(2024, 9, 10),
+      )));
+      expect(_dayNumbers(tester), [
+        for (var d = 26; d <= 31; d++) '$d',
+        for (var d = 1; d <= 30; d++) '$d',
+        for (var d = 1; d <= 6; d++) '$d',
+      ]);
+    });
   });
 
   group('Characterization: default and custom cell style', () {
