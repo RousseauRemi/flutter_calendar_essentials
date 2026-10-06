@@ -607,12 +607,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   }
 
   /// Calculates the number of weeks needed to display the whole month
-  int _calculateNumberOfWeeksToDisplayTheWholeMonth(
-      DateTime date, int defaultWeeks) {
-    if (_calendarFormat != CalendarFormat.month) {
-      return defaultWeeks;
-    }
-
+  int _calculateNumberOfWeeksToDisplayTheWholeMonth(DateTime date) {
     var temporaryDate = date;
     int requiredWeeks = 0;
     final lastDate =
@@ -629,13 +624,9 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   }
 
   /// Builds multiple weeks for the calendar
-  List<Widget> _buildWeeks(int numberOfWeeks, double dayWidth) {
-    var date = _computeFirstDateOfCalendarFormat(
-        _firstDayDisplayed, CalendarFormat.week);
-
-    final weeksToDisplay =
-        _calculateNumberOfWeeksToDisplayTheWholeMonth(date, numberOfWeeks);
-
+  List<Widget> _buildWeeks(
+      DateTime firstWeekStart, int weeksToDisplay, double dayWidth) {
+    var date = firstWeekStart;
     final cells = <Widget>[];
     final dayHeight = widget.heightCell ?? _defaultCellHeight;
 
@@ -683,12 +674,16 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   Widget _buildCalendar() {
     final dayWidth = _computeDayCellWidth();
     final weekdayHeader = _buildWeekdayHeader(dayWidth);
+    final firstWeekStart = _computeFirstDateOfCalendarFormat(
+        _firstDayDisplayed, CalendarFormat.week);
 
     final (alignment, numberOfWeeks) = switch (_calendarFormat) {
       CalendarFormat.week => (WrapAlignment.spaceAround, 1),
       CalendarFormat.twoWeeks => (WrapAlignment.center, 2),
-      // Max weeks any month can need; will be recalculated dynamically
-      CalendarFormat.month => (WrapAlignment.center, 6),
+      CalendarFormat.month => (
+          WrapAlignment.center,
+          _calculateNumberOfWeeksToDisplayTheWholeMonth(firstWeekStart)
+        ),
     };
 
     return Column(
@@ -696,7 +691,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
         weekdayHeader,
         Wrap(
           alignment: alignment,
-          children: _buildWeeks(numberOfWeeks, dayWidth),
+          children: _buildWeeks(firstWeekStart, numberOfWeeks, dayWidth),
         )
       ],
     );
