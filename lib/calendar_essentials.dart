@@ -509,39 +509,25 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   /// Computes the first date to display for a given format
   DateTime _computeFirstDateOfCalendarFormat(
       DateTime date, CalendarFormat format) {
-    DateTime startDate = _normalizeDate(date);
-
-    switch (format) {
-      case CalendarFormat.week:
-      case CalendarFormat.twoWeeks:
-        startDate = startDate.subtract(
-            Duration(days: startDate.weekday - _firstDayOfWeek.index));
-        break;
-      case CalendarFormat.month:
-        startDate = DateTime(startDate.year, startDate.month, 1);
-        break;
-    }
-
-    return startDate;
+    final startDate = _normalizeDate(date);
+    return switch (format) {
+      CalendarFormat.week || CalendarFormat.twoWeeks => startDate
+          .subtract(Duration(days: startDate.weekday - _firstDayOfWeek.index)),
+      CalendarFormat.month => DateTime(startDate.year, startDate.month, 1),
+    };
   }
 
   /// Computes the last date to display for a given format
   DateTime _computeLastDateOfCalendarFormat(
       DateTime date, CalendarFormat format) {
-    DateTime endDate = _normalizeDate(date);
-    switch (format) {
-      case CalendarFormat.week:
-      case CalendarFormat.twoWeeks:
-        int daysToAdd = (format == CalendarFormat.week) ? 6 : 13;
-        endDate = endDate.add(Duration(
-            days: daysToAdd - 1 - (_firstDayOfWeek.index - endDate.weekday)));
-        break;
-      case CalendarFormat.month:
-        endDate = DateTime(endDate.year, endDate.month + 1, 0);
-        break;
-    }
-
-    return endDate;
+    final endDate = _normalizeDate(date);
+    final weekdayOffset = _firstDayOfWeek.index - endDate.weekday;
+    return switch (format) {
+      CalendarFormat.week => endDate.add(Duration(days: 6 - 1 - weekdayOffset)),
+      CalendarFormat.twoWeeks =>
+        endDate.add(Duration(days: 13 - 1 - weekdayOffset)),
+      CalendarFormat.month => DateTime(endDate.year, endDate.month + 1, 0),
+    };
   }
 
   /// Checks if a date is today
