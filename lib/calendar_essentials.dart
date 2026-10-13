@@ -167,12 +167,14 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   DateTime _validateSelectedDay(DateTime day) {
     final normalizedDay = _normalizeDate(day);
 
-    if (widget.firstDay != null && normalizedDay.isBefore(widget.firstDay!)) {
-      return _normalizeDate(widget.firstDay!);
+    final firstDay = widget.firstDay;
+    if (firstDay != null && normalizedDay.isBefore(firstDay)) {
+      return _normalizeDate(firstDay);
     }
 
-    if (widget.lastDay != null && normalizedDay.isAfter(widget.lastDay!)) {
-      return _normalizeDate(widget.lastDay!);
+    final lastDay = widget.lastDay;
+    if (lastDay != null && normalizedDay.isAfter(lastDay)) {
+      return _normalizeDate(lastDay);
     }
 
     return normalizedDay;
@@ -342,12 +344,12 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
 
   /// Returns list of available months for a given year
   List<int> _getAvailableMonths(int year) {
-    final startMonth = widget.firstDay != null && year == widget.firstDay!.year
-        ? widget.firstDay!.month
-        : 1;
-    final endMonth = widget.lastDay != null && year == widget.lastDay!.year
-        ? widget.lastDay!.month
-        : 12;
+    final firstDay = widget.firstDay;
+    final startMonth =
+        firstDay != null && year == firstDay.year ? firstDay.month : 1;
+    final lastDay = widget.lastDay;
+    final endMonth =
+        lastDay != null && year == lastDay.year ? lastDay.month : 12;
 
     return List.generate(
         endMonth - startMonth + 1, (index) => startMonth + index);
