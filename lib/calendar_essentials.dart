@@ -558,10 +558,9 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
 
   /// Builds a single day cell
   Widget _buildDayCell(DateTime day, double dayWidth, double dayHeight) {
-    EventCalendarEssential? event = _findEventForDay(day);
-
-    final style = widget.calendarStyle ?? _defaultCalendarStyle;
-    event ??= SimpleEventCalendarEssential(style, day, true);
+    final event = _findEventForDay(day) ??
+        SimpleEventCalendarEssential(
+            widget.calendarStyle ?? _defaultCalendarStyle, day, true);
 
     return Padding(
       padding: const EdgeInsets.all(_cellPadding),
