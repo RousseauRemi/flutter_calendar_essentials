@@ -182,15 +182,13 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   void _computeEnabledPages(DateTime date) {
     // Note: In the case of a click on the next or previous page, the date will be identical
     final newDate = _computeFirstDateOfCalendarFormat(date, _calendarFormat);
-    _previousPageEnabled = widget.firstDay == null ||
-        !(newDate.isBefore(widget.firstDay!) ||
-            newDate.isAtSameMomentAs(widget.firstDay!));
+    _previousPageEnabled =
+        widget.firstDay == null || newDate.isAfter(widget.firstDay!);
 
     final nextFutureDate =
         _computeLastDateOfCalendarFormat(newDate, _calendarFormat);
-    _nextPageEnabled = widget.lastDay == null ||
-        !(nextFutureDate.isAfter(widget.lastDay!) ||
-            nextFutureDate.isAtSameMomentAs(widget.lastDay!));
+    _nextPageEnabled =
+        widget.lastDay == null || nextFutureDate.isBefore(widget.lastDay!);
   }
 
   /// Handles gesture-based navigation
@@ -593,8 +591,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
     var temporaryDate = firstWeekStart;
     int requiredWeeks = 0;
 
-    while (temporaryDate.isBefore(lastDate) ||
-        temporaryDate.isAtSameMomentAs(lastDate)) {
+    while (!temporaryDate.isAfter(lastDate)) {
       requiredWeeks++;
       temporaryDate = DateTime(temporaryDate.year, temporaryDate.month,
           temporaryDate.day + _daysPerWeek);
