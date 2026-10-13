@@ -111,6 +111,10 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   static const double _headerWrapThreshold = 400.0;
   static const double _shortNameWidthThreshold = 40.0;
   static const double _mediumNameWidthThreshold = 70.0;
+  static const TextStyle _defaultHeaderTextStyle =
+      TextStyle(fontSize: 18, fontWeight: FontWeight.bold);
+  static const TextStyle _defaultWeekdayTextStyle =
+      TextStyle(fontWeight: FontWeight.bold, fontSize: 12);
   static final CalendarStyle _defaultCalendarStyle = CalendarStyle();
 
   late final Weekday _firstDayOfWeek;
@@ -449,7 +453,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
             : Text(
                 DateFormat.yMMMM().format(_firstDayDisplayed),
                 style: widget.calendarStyle?.headerTextStyle ??
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    _defaultHeaderTextStyle,
               );
 
         final viewModeSelector = DropdownButton<CalendarFormat>(
@@ -639,7 +643,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
                 weekdayNames[weekday]!,
                 textAlign: TextAlign.center,
                 style: widget.calendarStyle?.weekdayTextStyle ??
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                    _defaultWeekdayTextStyle,
               ),
             ),
           ),
