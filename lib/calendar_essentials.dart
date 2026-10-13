@@ -113,12 +113,12 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   static const double _mediumNameWidthThreshold = 70.0;
   static final CalendarStyle _defaultCalendarStyle = CalendarStyle();
 
-  Weekday _firstDayOfWeek = Weekday.monday;
-  CalendarFormat _calendarFormat = CalendarFormat.month;
-  DateTime _firstDayDisplayed = DateTime.now();
-  bool _previousPageEnabled = false;
-  bool _nextPageEnabled = true;
-  DateTime _selectedDay = DateTime.now();
+  late final Weekday _firstDayOfWeek;
+  late CalendarFormat _calendarFormat;
+  late DateTime _firstDayDisplayed;
+  late bool _previousPageEnabled;
+  late bool _nextPageEnabled;
+  late DateTime _selectedDay;
 
   // Cache for event lookup optimization
   late Map<DateTime, EventCalendarEssential> _eventMap;
