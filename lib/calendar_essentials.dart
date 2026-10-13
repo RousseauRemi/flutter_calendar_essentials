@@ -629,7 +629,6 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
     final weekdayNames = _weekdayNamesForWidth(dayWidth);
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
       children: List.generate(_daysPerWeek, (i) {
         final weekday =
             Weekday.values[(firstDayOfWeekIndex + i) % Weekday.values.length];
