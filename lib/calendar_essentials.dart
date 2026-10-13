@@ -697,10 +697,9 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
 
   /// Computes the width of each day cell
   double _computeDayCellWidth() {
-    // Account for padding: each cell has 3px padding on all sides (6px horizontal)
-    // Total horizontal padding for 7 cells = 7 * 6 = 42px
-    // Total margin = 16px
-    // Available width = screen width - 16 (margins) - 42 (padding)
+    // Each cell has _cellPadding on every side (_cellHorizontalPadding in
+    // total horizontally). Available width = screen width
+    // - _totalHorizontalMargin - _daysPerWeek * _cellHorizontalPadding
     return (MediaQuery.of(context).size.width -
             _totalHorizontalMargin -
             (_daysPerWeek * _cellHorizontalPadding)) /
