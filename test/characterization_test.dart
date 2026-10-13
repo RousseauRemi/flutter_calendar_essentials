@@ -640,6 +640,33 @@ void main() {
     }
   });
 
+  group('Characterization: header label style', () {
+    testWidgets('T9a default header style is 18 bold', (tester) async {
+      await tester.pumpWidget(_app(CalendarEssentials(
+        events: const [],
+        selectedDay: DateTime(2024, 2, 14),
+      )));
+      expect(
+        tester.widget<Text>(find.text('February 2024')).style,
+        const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      );
+    });
+
+    testWidgets('T9b custom headerTextStyle is used', (tester) async {
+      await tester.pumpWidget(_app(CalendarEssentials(
+        events: const [],
+        selectedDay: DateTime(2024, 2, 14),
+        calendarStyle: CalendarStyle(
+            headerTextStyle:
+                const TextStyle(fontSize: 11, color: Colors.green)),
+      )));
+      expect(
+        tester.widget<Text>(find.text('February 2024')).style,
+        const TextStyle(fontSize: 11, color: Colors.green),
+      );
+    });
+  });
+
   group('Characterization: format dropdown', () {
     testWidgets('T1 callbacks and grid per format', (tester) async {
       await _setNavView(tester);
