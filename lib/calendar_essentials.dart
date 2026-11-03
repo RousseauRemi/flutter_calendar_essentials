@@ -115,6 +115,11 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
       TextStyle(fontSize: 18, fontWeight: FontWeight.bold);
   static const TextStyle _defaultWeekdayTextStyle =
       TextStyle(fontWeight: FontWeight.bold, fontSize: 12);
+  static const TextStyle _comboboxDefaultStyle = TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.bold,
+    color: Colors.black,
+  );
   static final CalendarStyle _defaultCalendarStyle = CalendarStyle();
 
   late final Weekday _firstDayOfWeek;
@@ -387,12 +392,6 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   String _getMonthName(int month) {
     return _monthNames[month - 1];
   }
-
-  static const TextStyle _comboboxDefaultStyle = TextStyle(
-    fontSize: 18,
-    fontWeight: FontWeight.bold,
-    color: Colors.black,
-  );
 
   /// Builds a month or year selection dropdown
   Widget _buildIntCombobox(int value, List<int> items,
