@@ -193,13 +193,13 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   void _computeEnabledPages(DateTime date) {
     // Note: In the case of a click on the next or previous page, the date will be identical
     final newDate = _computeFirstDateOfCalendarFormat(date, _calendarFormat);
-    _previousPageEnabled =
-        widget.firstDay == null || newDate.isAfter(widget.firstDay!);
+    final firstDay = widget.firstDay;
+    _previousPageEnabled = firstDay == null || newDate.isAfter(firstDay);
 
     final nextFutureDate =
         _computeLastDateOfCalendarFormat(newDate, _calendarFormat);
-    _nextPageEnabled =
-        widget.lastDay == null || nextFutureDate.isBefore(widget.lastDay!);
+    final lastDay = widget.lastDay;
+    _nextPageEnabled = lastDay == null || nextFutureDate.isBefore(lastDay);
   }
 
   /// Handles gesture-based navigation
