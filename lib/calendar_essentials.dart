@@ -111,6 +111,7 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   static const double _headerWrapThreshold = 400.0;
   static const double _shortNameWidthThreshold = 40.0;
   static const double _mediumNameWidthThreshold = 70.0;
+  static const double _dragThreshold = 5.0;
   static const TextStyle _defaultHeaderTextStyle =
       TextStyle(fontSize: 18, fontWeight: FontWeight.bold);
   static const TextStyle _defaultWeekdayTextStyle =
@@ -206,18 +207,18 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
   void _handleGesture(DragUpdateDetails details) {
     if (widget.availableGestures == AvailableGestures.all ||
         widget.availableGestures == AvailableGestures.horizontal) {
-      if (details.delta.dx > 5) {
+      if (details.delta.dx > _dragThreshold) {
         _previousPage();
-      } else if (details.delta.dx < -5) {
+      } else if (details.delta.dx < -_dragThreshold) {
         _nextPage();
       }
     }
 
     if (widget.availableGestures == AvailableGestures.all ||
         widget.availableGestures == AvailableGestures.vertical) {
-      if (details.delta.dy > 5) {
+      if (details.delta.dy > _dragThreshold) {
         _previousPage();
-      } else if (details.delta.dy < -5) {
+      } else if (details.delta.dy < -_dragThreshold) {
         _nextPage();
       }
     }
