@@ -947,4 +947,42 @@ void main() {
       expectOnlyToday(DateTime.utc(now.year, now.month, now.day, 12));
     });
   });
+
+  group('Characterization: drag navigation', () {
+    for (final axis in ['dx', 'dy']) {
+      testWidgets('T8 $axis: 5 does nothing, above 5 changes page',
+          (tester) async {
+        await _setNavView(tester);
+        final log = <String>[];
+        await tester
+            .pumpWidget(_navCalendar(log, selectedDay: DateTime(2024, 2, 14)));
+        Offset o(double v) => axis == 'dx' ? Offset(v, 0) : Offset(0, v);
+        final g = await tester.startGesture(const Offset(400, 200));
+        Future<List<String>> move(double v) async {
+          log.clear();
+          await g.moveBy(o(v));
+          await tester.pump();
+          return [...log];
+        }
+
+        const prev = [
+          'changed 2024-1-1 0:0 .. 2024-1-31 0:0',
+          'page 2024-1-1 0:0'
+        ];
+        const next = [
+          'changed 2024-2-1 0:0 .. 2024-2-29 0:0',
+          'page 2024-2-1 0:0'
+        ];
+        expect(await move(30), isEmpty); // wins the arena, no update
+        expect(await move(5), isEmpty);
+        expect(await move(6), prev);
+        expect(await move(-5), isEmpty);
+        expect(await move(-6), next);
+        expect(await move(5.000001), prev);
+        expect(await move(-5.000001), next);
+        await g.up();
+        await tester.pump();
+      });
+    }
+  });
 }
