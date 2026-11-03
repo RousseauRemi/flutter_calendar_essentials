@@ -582,14 +582,6 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
     );
   }
 
-  /// Builds a week of day cells
-  List<Widget> _buildWeek(DateTime date, double dayWidth, double dayHeight) {
-    return List.generate(_daysPerWeek, (dayIndex) {
-      final DateTime day = DateTime(date.year, date.month, date.day + dayIndex);
-      return _buildDayCell(day, dayWidth, dayHeight);
-    });
-  }
-
   /// Calculates the number of weeks needed to display the whole month
   int _calculateNumberOfWeeksToDisplayTheWholeMonth(
       DateTime firstWeekStart, DateTime lastDate) {
@@ -613,10 +605,11 @@ class _CalendarEssentialsState extends State<CalendarEssentials> {
     final dayHeight = widget.heightCell ?? _defaultCellHeight;
 
     for (int weekIndex = 0; weekIndex < weeksToDisplay; weekIndex++) {
-      for (final cell in _buildWeek(date, dayWidth, dayHeight)) {
+      for (int dayIndex = 0; dayIndex < _daysPerWeek; dayIndex++) {
+        final day = DateTime(date.year, date.month, date.day + dayIndex);
         cells.add(SizedBox(
           width: dayWidth,
-          child: cell,
+          child: _buildDayCell(day, dayWidth, dayHeight),
         ));
       }
       date = DateTime(date.year, date.month, date.day + _daysPerWeek);
