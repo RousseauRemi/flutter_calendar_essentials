@@ -1,5 +1,3 @@
-library flutter_calendar_essentials;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_essentials/calendar_style.dart';
 import 'package:flutter_calendar_essentials/enums.dart';
